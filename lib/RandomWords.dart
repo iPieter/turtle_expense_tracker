@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
+import 'ApplicationDatabase.dart';
+import 'Expense.dart';
 
 class RandomWords extends StatefulWidget {
   @override
@@ -25,7 +27,14 @@ class RandomWordsState extends State<RandomWords> {
         color: alreadySaved ? Colors.blue : null,
       ),
       onTap: () {
-        setState(() {
+        setState(() async {
+
+          ApplicationDatabase db = new ApplicationDatabase();
+          await db.insertExpense(new Expense(3.0, "test", DateTime.now(), "here", "De Oplossing"));
+
+          var list = await db.getExpenses();
+          print(list);
+
           if (alreadySaved) {
             _saved.remove(pair);
           } else {
