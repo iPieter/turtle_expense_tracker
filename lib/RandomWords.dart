@@ -76,24 +76,17 @@ class RandomWordsState extends State<RandomWords> {
             title: new Text('Add expense'),
           ),
           body: new GridView.count(
-            primary: false,
-            padding: const EdgeInsets.all(20.0),
-            crossAxisSpacing: 10.0,
-            crossAxisCount: 5,
-            children: <Widget>[
-              const Icon(Icons.add),
-              const Icon(Icons.add),
-              const Icon(Icons.add),
-              const Icon(Icons.add),
-              const Icon(Icons.add),
-              const Icon(Icons.add),
-              const Icon(Icons.add),
-              const Icon(Icons.add),
-              const Icon(Icons.add),
-              const Icon(Icons.add),
-              const Icon(Icons.add),
-            ],
-          ),
+                  primary: false,
+                  padding: const EdgeInsets.all(20.0),
+                  crossAxisSpacing: 10.0,
+                  crossAxisCount: 5,
+                  children: <Widget>[
+                    new FlatButton(
+                        onPressed: () {},
+                        child: const Icon(Icons.free_breakfast,
+                            color: Colors.blue)),
+                  ],
+                ),
         );
       }),
     );
