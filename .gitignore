@@ -1,0 +1,7 @@
+build
+android/gradlew
+android/gradlew.bat
+android/gradle
+pubspec.lock
+.flutter-plugins
+.packages
