@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:english_words/english_words.dart';
 import 'ApplicationDatabase.dart';
 import 'Expense.dart';
 
+/*
 class RandomWords extends StatefulWidget {
   @override
   createState() => new RandomWordsState();
 }
+
 
 class RandomWordsState extends State<RandomWords> {
   final _suggestions = <WordPair>[];
@@ -137,3 +138,4 @@ class RandomWordsState extends State<RandomWords> {
     );
   }
 }
+*/

@@ -8,7 +8,7 @@ class Turtle extends StatelessWidget {
   Widget build(BuildContext context) {
     return new MaterialApp(
       debugShowCheckedModeBanner: false, //remove shitty debug banner
-      title: 'Startup Name Generator',
+      title: 'Expenses',
       home: new ExpenseCategories(),
       theme: new ThemeData(
         primaryColor: Colors.white,
