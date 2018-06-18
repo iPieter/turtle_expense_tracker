@@ -22,10 +22,15 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
   Widget _buildRow(Expense expense) {
     return new ListTile(
       dense: false,
-      title: expense.category != null ? Text(
-        expense.category,
-        style: _biggerFont,
-      ) : Text("Unknown category", style: const TextStyle(color: Colors.redAccent),),
+      title: expense.category != null
+          ? Text(
+              expense.category,
+              style: _biggerFont,
+            )
+          : Text(
+              "Unknown category",
+              style: const TextStyle(color: Colors.redAccent),
+            ),
       //subtitle: new Text("test"),
       leading: new Icon(
         Icons.crop_square,
@@ -97,7 +102,7 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
 
                       if (index < snapshot.data.length) {
                         return _buildRow(snapshot.data[index]);
-                      } else if (snapshot.data.length == 0) {
+                      } else if (snapshot.data.length == 0 && i == 0) {
                         return new Text("no entries");
                       }
                     });
@@ -117,12 +122,18 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
         title: new Text('Expenses'),
         actions: <Widget>[
           new IconButton(
+              icon: new Icon(Icons.clear),
+              onPressed: () {
+                setState(() {
+                  _db.deleteDatabase();
+                });
+              }),
+          new IconButton(
               icon: new Icon(Icons.add),
               onPressed: () {
-                Navigator
-                    .of(context)
-                    .push(new MaterialPageRoute(builder: (_) => new InputExpense(_expenses)));
-              })
+                Navigator.of(context).push(new MaterialPageRoute(
+                    builder: (_) => new InputExpense(_expenses)));
+              }),
         ],
       ),
       body: _buildSuggestions(),
