@@ -37,7 +37,13 @@ class ApplicationDatabase {
       });
   }
 
-  getExpenses() async {
+  getExpensesInPeriod( DateTime start, DateTime end ) async {
+    List<Expense> expenses = new List();
+
+    return expenses;    
+  }
+
+  getAllExpenses() async {
     var db = await _getDB();
     List<Map> list = await db.rawQuery("SELECT * FROM Expense");
     List<Expense> expenses = new List();
