@@ -27,10 +27,9 @@ class ApplicationDatabase {
   }
 
   deleteDatabase() async {
-    Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = [documentsDirectory.path, "app.db"].join();
+    var db = await _getDB();
 
-    await db_utils.deleteDatabase(path);
+    await db.rawQuery("DELETE * FROM Expense");
   }
 
   insertExpense( Expense e ) async{
