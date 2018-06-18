@@ -29,7 +29,7 @@ class ApplicationDatabase {
   deleteDatabase() async {
     var db = await _getDB();
 
-    await db.rawQuery("DELETE * FROM Expense");
+    await db.rawQuery("DELETE FROM Expense");
   }
 
   insertExpense( Expense e ) async{
