@@ -7,6 +7,7 @@ import 'Expense.dart';
 
 class InputExpense extends StatefulWidget {
   List<Expense> _expenses;
+  String _category;
 
   InputExpense(List<Expense> expenses) {
     _expenses = expenses;
@@ -23,6 +24,25 @@ class InputExpenseState extends State<InputExpense> {
 
   InputExpenseState(List<Expense> expenses) {
     _expenses = expenses;
+  }
+  String _category;
+
+  @override
+  void initState() {
+    super.initState();
+    _category = null;
+  }
+
+  Widget getCategoryBtn(String name) {
+    return new FlatButton(
+        onPressed: () {
+          setState(() {
+                      
+          _category = name;
+                    });
+        },
+        child: new Icon(Icons.free_breakfast,
+            color: _category == null ? Colors.blue : Colors.red));
   }
 
   @override
@@ -54,32 +74,20 @@ class InputExpenseState extends State<InputExpense> {
             shrinkWrap: true,
             crossAxisCount: 5,
             children: <Widget>[
-              new FlatButton(
-                  onPressed: () {},
-                  child: const Icon(Icons.free_breakfast, color: Colors.blue)),
-              new FlatButton(
-                  onPressed: () {},
-                  child: const Icon(Icons.local_drink, color: Colors.red)),
-              new FlatButton(
-                  onPressed: () {},
-                  child: const Icon(Icons.fastfood, color: Colors.green)),
-              new FlatButton(
-                  onPressed: () {},
-                  child: const Icon(Icons.hot_tub, color: Colors.cyan)),
-              new FlatButton(
-                  onPressed: () {},
-                  child:
-                      const Icon(Icons.free_breakfast, color: Colors.indigo)),
+              getCategoryBtn("Alcohol"),
+              getCategoryBtn("Koffie"),
+              getCategoryBtn("Brood"),
+              getCategoryBtn("Vlees"),
+              getCategoryBtn("Maaltijden"),
             ],
           ),
           new RaisedButton(
             child: new Text("add"),
             onPressed: () async {
               ApplicationDatabase db = new ApplicationDatabase();
-              final expense = new Expense(
-                  double.parse(inputController.text), "test", DateTime.now(), "here", "De Oplossing");
+              final expense = new Expense(double.parse(inputController.text),
+                  "test", DateTime.now(), "here", _category);
               await db.insertExpense(expense);
-              
             },
           )
         ]));
