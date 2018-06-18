@@ -22,10 +22,10 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
   Widget _buildRow(Expense expense) {
     return new ListTile(
       dense: false,
-      title: new Text(
+      title: expense.category != null ? Text(
         expense.category,
         style: _biggerFont,
-      ),
+      ) : Text("Unknown category", style: const TextStyle(color: Colors.redAccent),),
       //subtitle: new Text("test"),
       leading: new Icon(
         Icons.crop_square,
@@ -97,6 +97,8 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
 
                       if (index < snapshot.data.length) {
                         return _buildRow(snapshot.data[index]);
+                      } else if (snapshot.data.length == 0) {
+                        return new Text("no entries");
                       }
                     });
           }
@@ -119,7 +121,7 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
               onPressed: () {
                 Navigator
                     .of(context)
-                    .push(new MaterialPageRoute(builder: (context) {return new InputExpense(_expenses).createState().build(context);}));
+                    .push(new MaterialPageRoute(builder: (_) => new InputExpense(_expenses)));
               })
         ],
       ),
