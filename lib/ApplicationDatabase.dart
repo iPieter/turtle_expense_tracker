@@ -1,5 +1,4 @@
-import 'package:sqflite/sqflite.dart';
-import 'dart:async';
+import 'package:sqflite/sqflite.dart' as db_utils;
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'Expense.dart';
@@ -7,7 +6,7 @@ import 'Expense.dart';
 class ApplicationDatabase {
   static final ApplicationDatabase _singleton = new ApplicationDatabase._internal();
 
-  Database _db;
+  db_utils.Database _db;
 
   factory ApplicationDatabase() {
     return _singleton;
@@ -18,14 +17,19 @@ class ApplicationDatabase {
       Directory documentsDirectory = await getApplicationDocumentsDirectory();
       String path = [documentsDirectory.path, "app.db"].join();
 
-      await deleteDatabase(path);
-
-      _db = await openDatabase(path, version: 1,
-        onCreate: (Database db, int version) {
+      _db = await db_utils.openDatabase(path, version: 1,
+        onCreate: (db_utils.Database db, int version) {
           db.execute("CREATE TABLE Expense(id INTEGER PRIMARY KEY, amount REAL, name TEXT, date INT, location TEXT, category TEXT)");
       });
     }
     return _db;
+  }
+
+  deleteDatabase() async {
+    Directory documentsDirectory = await getApplicationDocumentsDirectory();
+    String path = [documentsDirectory.path, "app.db"].join();
+
+    await db_utils.deleteDatabase(path);
   }
 
   insertExpense( Expense e ) async{
@@ -38,7 +42,17 @@ class ApplicationDatabase {
   }
 
   getExpensesInPeriod( DateTime start, DateTime end ) async {
+    var db = await _getDB();
+
     List<Expense> expenses = new List();
+
+    List<Map> list = await db.rawQuery("SELECT * FROM Expense WHERE date >= ? AND date <= ?", [ start.millisecondsSinceEpoch, end.millisecondsSinceEpoch ] );
+
+    for( var e in list )
+    {
+        Expense expense = new Expense(e["amount"], e["name"], new DateTime.fromMicrosecondsSinceEpoch(e["date"]), e["location"], e["category"]);
+        expenses.add(expense);
+    }
 
     return expenses;    
   }
