@@ -38,11 +38,11 @@ class InputExpenseState extends State<InputExpense> {
         onPressed: () {
           setState(() {
                       
-          _category = name;
+          _category = _category != name ? name : null;
                     });
         },
         child: new Icon(Icons.free_breakfast,
-            color: _category == null ? Colors.blue : Colors.red));
+            color: _category == null || _category == name ? Colors.blue : Colors.red));
   }
 
   @override
