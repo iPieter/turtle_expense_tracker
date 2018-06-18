@@ -37,12 +37,16 @@ class InputExpenseState extends State<InputExpense> {
     return new FlatButton(
         onPressed: () {
           setState(() {
-                      
-          _category = _category != name ? name : null;
-                    });
+            _category = _category != name ? name : null;
+          });
         },
-        child: new Icon(Icons.free_breakfast,
-            color: _category == null || _category == name ? Colors.blue : Colors.red));
+        child: new Column(children: <Widget>[
+          Icon(Icons.free_breakfast,
+              color: _category == null || _category == name
+                  ? Colors.blue
+                  : Colors.red),
+                  Text(name, style: new TextStyle(fontSize: 8.0),)
+        ]));
   }
 
   @override
