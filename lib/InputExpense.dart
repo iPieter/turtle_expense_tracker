@@ -88,7 +88,7 @@ class InputExpenseState extends State<InputExpense> {
               final expense = new Expense(double.parse(inputController.text),
                   "test", DateTime.now(), "here", _category);
               await db.insertExpense(expense);
-              //Navigator.pop(context)
+              Navigator.pop(context);
             },
           )
         ]));
