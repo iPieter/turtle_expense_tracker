@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:currency_input_formatter/currency_input_formatter.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'ApplicationDatabase.dart';
+import 'InputExpense.dart';
 import 'Expense.dart';
 
 class ExpenseCategories extends StatefulWidget {
@@ -10,8 +12,12 @@ class ExpenseCategories extends StatefulWidget {
 }
 
 class ExpenseCategoriesState extends State<ExpenseCategories> {
-  final _expenses = [new Expense(190.0, "name", DateTime.now(), "ah", "The solution"), new Expense(12.0, "name", DateTime.now(), "ah", "Brood")];
-  final _biggerFont = const TextStyle(fontSize: 18.0,);
+  static var _expenses = <Expense>[];
+  final _biggerFont = const TextStyle(
+    fontSize: 18.0,
+  );
+
+  static final _db = new ApplicationDatabase();
 
   Widget _buildRow(Expense expense) {
     return new ListTile(
@@ -27,7 +33,9 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
       ),
       trailing: new Text(
         "€ " + expense.amount.toStringAsFixed(2),
-        style: new TextStyle(fontSize: 18.0, color: expense.amount < 0 ? Colors.red : Colors.green),
+        style: new TextStyle(
+            fontSize: 18.0,
+            color: expense.amount < 0 ? Colors.red : Colors.green),
       ),
       onTap: () {
         setState(() {});
@@ -67,68 +75,30 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
     );
   }
 
-  void _pushExpense() {
-    Navigator.of(context).push(
-      new MaterialPageRoute(builder: (context) {
-        return new Scaffold(
-            appBar: new AppBar(
-              title: new Text('Add expense'),
-            ),
-            body: new Column(children: <Widget>[
-              new TextField(
-                autofocus: true,
-                keyboardType: TextInputType.number,
-                textAlign: TextAlign.right,
-                decoration: const InputDecoration(
-                  contentPadding: const EdgeInsets.all(15.0),
-                  prefixText: '\€',
-                  border: InputBorder.none,
-                ),
-                inputFormatters: <TextInputFormatter>[
-                  new CurrencyInputFormatter(
-                      allowSubdivisions: true, subdivisionMarker: "."),
-                ],
-                style: const TextStyle(fontSize: 28.0, color: Colors.black87),
-              ),
-              new GridView.count(
-                shrinkWrap: true,
-                crossAxisCount: 5,
-                children: <Widget>[
-                  new FlatButton(
-                      onPressed: () {},
-                      child:
-                          const Icon(Icons.free_breakfast, color: Colors.blue)),
-                  new FlatButton(
-                      onPressed: () {},
-                      child: const Icon(Icons.local_drink, color: Colors.red)),
-                  new FlatButton(
-                      onPressed: () {},
-                      child: const Icon(Icons.fastfood, color: Colors.green)),
-                  new FlatButton(
-                      onPressed: () {},
-                      child: const Icon(Icons.hot_tub, color: Colors.cyan)),
-                  new FlatButton(
-                      onPressed: () {},
-                      child: const Icon(Icons.free_breakfast,
-                          color: Colors.indigo)),
-                ],
-              ),
-              new MaterialButton(child: new Text("data"), onPressed: (){},)
-            ]));
-      }),
-    );
-  }
-
   Widget _buildSuggestions() {
-    return new ListView.builder(
-        padding: const EdgeInsets.all(16.0),
-        itemBuilder: (context, i) {
-          if (i.isOdd) return new Divider();
+    return new FutureBuilder<List<Expense>>(
+        future: _db.getAllExpenses(),
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.none:
+              return new Text('Press button to start');
+            case ConnectionState.waiting:
+              return new Text('Awaiting result...');
+            default:
+              if (snapshot.hasError)
+                return new Text('Error: ${snapshot.error}');
+              else
+                return new ListView.builder(
+                    padding: const EdgeInsets.all(16.0),
+                    itemBuilder: (context, i) {
+                      if (i.isOdd) return new Divider();
 
-          final index = i ~/ 2;
+                      final index = i ~/ 2;
 
-          if (index < _expenses.length) {
-            return _buildRow(_expenses[index]);
+                      if (index < snapshot.data.length) {
+                        return _buildRow(snapshot.data[index]);
+                      }
+                    });
           }
         });
   }
@@ -145,9 +115,12 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
         title: new Text('Expenses'),
         actions: <Widget>[
           new IconButton(
-            icon: new Icon(Icons.add),
-            onPressed: _pushExpense,
-          )
+              icon: new Icon(Icons.add),
+              onPressed: () {
+                Navigator
+                    .of(context)
+                    .push(new MaterialPageRoute(builder: (context) {return new InputExpense(_expenses).createState().build(context);}));
+              })
         ],
       ),
       body: _buildSuggestions(),

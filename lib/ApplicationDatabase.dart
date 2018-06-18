@@ -43,7 +43,7 @@ class ApplicationDatabase {
     return expenses;    
   }
 
-  getAllExpenses() async {
+  Future<List<Expense>> getAllExpenses() async {
     var db = await _getDB();
     List<Map> list = await db.rawQuery("SELECT * FROM Expense");
     List<Expense> expenses = new List();
