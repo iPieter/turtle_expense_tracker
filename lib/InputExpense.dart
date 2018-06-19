@@ -4,6 +4,7 @@ import 'package:currency_input_formatter/currency_input_formatter.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'ApplicationDatabase.dart';
 import 'Expense.dart';
+import 'Location.dart';
 
 class InputExpense extends StatefulWidget {
   List<Expense> _expenses;
@@ -69,7 +70,7 @@ class InputExpenseState extends State<InputExpense> {
                       double.parse(inputController.text),
                       "test",
                       DateTime.now(),
-                      "here",
+                      new Location("Paul's bakery", 1.0, 2.0 ),
                       _category);
                   await db.insertExpense(expense);
                   Navigator.pop(context);
