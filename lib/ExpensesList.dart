@@ -3,6 +3,7 @@ import 'package:currency_input_formatter/currency_input_formatter.dart';
 import 'ApplicationDatabase.dart';
 import 'Expense.dart';
 import 'InputExpense.dart';
+import 'package:intl/intl.dart';
 
 class ExpensesList extends StatefulWidget {
   @override
@@ -50,36 +51,35 @@ class _ExpensesListState extends State<ExpensesList> {
   }
 
   Widget _buildRow(Expense expense) {
+    var formatter = new DateFormat('EEE DD/MM/yyyy hh:mm');
     return new ListTile(
-      dense: true,
+      dense: false,
       title: expense.name != null
           ? Text(
               expense.name,
               //style: _biggerFont,
             )
           : Text(
-              "Unknown category",
+              "Unknown name",
               style: const TextStyle(color: Colors.redAccent),
             ),
-      subtitle: expense.category != null
+      subtitle: expense.when != null
           ? Text(
-              expense.category,
+              expense.category + " • " + formatter.format(expense.when),
               //style: _biggerFont,
             )
           : Text(
-              "Unknown category",
+              "Unknown date",
               style: const TextStyle(color: Colors.redAccent),
             ),
       //subtitle: new Text("test"),
-      leading: new Icon(
-        Icons.crop_square,
-        color: Colors.blue,
-      ),
+      
       trailing: new Text(
         "€ " + expense.amount.toStringAsFixed(2),
         style: new TextStyle(
             fontSize: 18.0,
-            color: expense.amount < 0 ? Colors.red : Colors.green),
+            color: expense.amount > 0 ? Colors.red : Colors.green
+            ),
       ),
       onTap: () {
         setState(() {});
