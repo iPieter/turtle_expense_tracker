@@ -5,6 +5,7 @@ import 'package:charts_flutter/flutter.dart' as charts;
 import 'ApplicationDatabase.dart';
 import 'InputExpense.dart';
 import 'Expense.dart';
+import 'ExpensesList.dart';
 
 class ExpenseCategories extends StatefulWidget {
   @override
@@ -21,96 +22,6 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
 
   static final _db = new ApplicationDatabase();
 
-  Widget _buildRow(Expense expense) {
-    return new ListTile(
-      dense: false,
-      title: expense.category != null
-          ? Text(
-              expense.category,
-              style: _biggerFont,
-            )
-          : Text(
-              "Unknown category",
-              style: const TextStyle(color: Colors.redAccent),
-            ),
-      //subtitle: new Text("test"),
-      leading: new Icon(
-        Icons.crop_square,
-        color: Colors.blue,
-      ),
-      trailing: new Text(
-        "€ " + expense.amount.toStringAsFixed(2),
-        style: new TextStyle(
-            fontSize: 18.0,
-            color: expense.amount < 0 ? Colors.red : Colors.green),
-      ),
-      onTap: () {
-        setState(() {});
-      },
-    );
-  }
-
-  void _pushSaved() {
-    Navigator.of(context).push(
-      new MaterialPageRoute(
-        builder: (context) {
-          final tiles = _expenses.map(
-            (expense) {
-              return new ListTile(
-                title: new Text(
-                  expense.amount.toStringAsPrecision(2),
-                  style: _biggerFont,
-                ),
-              );
-            },
-          );
-          final divided = ListTile
-              .divideTiles(
-                context: context,
-                tiles: tiles,
-              )
-              .toList();
-
-          return new Scaffold(
-            appBar: new AppBar(
-              title: new Text('Add expense'),
-            ),
-            body: new ListView(children: divided),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildSuggestions() {
-    return new FutureBuilder<List<Expense>>(
-        future: _db.getAllExpenses(),
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.none:
-            //return new Text('Press button to start');
-            case ConnectionState.waiting:
-            //return new Text('Awaiting result...');
-            default:
-              if (snapshot.hasError)
-                return new Text('Error: ${snapshot.error}');
-              else
-                return new ListView.builder(
-                    padding: const EdgeInsets.all(16.0),
-                    itemBuilder: (context, i) {
-                      if (i.isOdd) return new Divider();
-
-                      final index = i ~/ 2;
-
-                      if (index < snapshot.data.length) {
-                        return _buildRow(snapshot.data[index]);
-                      } else if (snapshot.data.length == 0 && i == 0) {
-                        return new Text("no entries");
-                      }
-                    });
-          }
-        });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -131,7 +42,17 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
               ),
             ),
             new ListTile(
-              title: new Text('Clear database'),
+              leading: const Icon(Icons.list),
+              title: new Text('View All Expenses'),
+              onTap: () {
+                Navigator.of(context).push(new MaterialPageRoute(
+                    builder: (_) => new ExpensesList()));
+              },
+            ),
+            new Divider(),
+            new ListTile(
+              leading: const Icon(Icons.delete_forever),
+              title: new Text('Clear Database'),
               onTap: () {
                 setState(() {
                   _db.deleteDatabase();
@@ -139,13 +60,7 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
                 Navigator.pop(context);
               },
             ),
-            new ListTile(
-              title: new Text('Item 2'),
-              onTap: () {
-                // Update the state of the app
-                // ...
-              },
-            ),
+            
           ],
         ),
       ),
@@ -170,7 +85,7 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
               _scaffoldKey.currentState.openDrawer();
             }),
       ),
-      body: _buildSuggestions(),
+      body: new SimpleSeriesLegend(SimpleSeriesLegend._createSampleData()),
     );
   }
 }
