@@ -131,7 +131,17 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
               ),
             ),
             new ListTile(
-              title: new Text('Clear database'),
+              leading: const Icon(Icons.list),
+              title: new Text('View All Expenses'),
+              onTap: () {
+                // Update the state of the app
+                // ...
+              },
+            ),
+            new Divider(),
+            new ListTile(
+              leading: const Icon(Icons.delete_forever),
+              title: new Text('Clear Database'),
               onTap: () {
                 setState(() {
                   _db.deleteDatabase();
@@ -139,13 +149,7 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
                 Navigator.pop(context);
               },
             ),
-            new ListTile(
-              title: new Text('Item 2'),
-              onTap: () {
-                // Update the state of the app
-                // ...
-              },
-            ),
+            
           ],
         ),
       ),
