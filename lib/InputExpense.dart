@@ -35,18 +35,16 @@ class InputExpenseState extends State<InputExpense> {
 
   Widget getCategoryBtn(String name, Color color) {
     return new FlatButton(
-                  padding: EdgeInsets.zero,
-
+        padding: EdgeInsets.zero,
         onPressed: () {
           setState(() {
             _category = _category != name ? name : null;
           });
         },
         child: new Column(children: <Widget>[
-          Icon(Icons.free_breakfast,
-              color: _category == null || _category == name
-                  ? color
-                  : Colors.grey),
+          Icon(Icons.crop_landscape,
+              color:
+                  _category == null || _category == name ? color : Colors.grey),
           Text(
             name,
             style: new TextStyle(fontSize: 12.0, fontWeight: FontWeight.w100),
