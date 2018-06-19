@@ -37,12 +37,16 @@ class InputExpenseState extends State<InputExpense> {
     return new FlatButton(
         onPressed: () {
           setState(() {
-                      
-          _category = _category != name ? name : null;
-                    });
+            _category = _category != name ? name : null;
+          });
         },
-        child: new Icon(Icons.free_breakfast,
-            color: _category == null || _category == name ? Colors.blue : Colors.red));
+        child: new Column(children: <Widget>[
+          Icon(Icons.free_breakfast,
+              color: _category == null || _category == name
+                  ? Colors.blue
+                  : Colors.red),
+                  Text(name, style: new TextStyle(fontSize: 8.0),)
+        ]));
   }
 
   @override
@@ -52,6 +56,23 @@ class InputExpenseState extends State<InputExpense> {
     return new Scaffold(
         appBar: new AppBar(
           title: new Text('Add expense'),
+          actions: <Widget>[
+             new IconButton(
+            icon: const Icon(Icons.check),
+            onPressed: () async {
+              ApplicationDatabase db = new ApplicationDatabase();
+              try {
+                 final expense = new Expense(double.parse(inputController.text),
+                  "test", DateTime.now(), "here", _category);
+              await db.insertExpense(expense);
+              Navigator.pop(context);
+              } catch (e) {
+              }
+
+             
+            },
+          )
+          ],
         ),
         body: new Column(children: <Widget>[
           new TextField(
@@ -77,20 +98,11 @@ class InputExpenseState extends State<InputExpense> {
               getCategoryBtn("Alcohol"),
               getCategoryBtn("Koffie"),
               getCategoryBtn("Brood"),
-              getCategoryBtn("Vlees"),
               getCategoryBtn("Maaltijden"),
+              getCategoryBtn("Vlees"),
             ],
           ),
-          new RaisedButton(
-            child: new Text("add"),
-            onPressed: () async {
-              ApplicationDatabase db = new ApplicationDatabase();
-              final expense = new Expense(double.parse(inputController.text),
-                  "test", DateTime.now(), "here", _category);
-              await db.insertExpense(expense);
-              Navigator.pop(context);
-            },
-          )
+         
         ]));
   }
 }
