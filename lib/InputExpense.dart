@@ -33,8 +33,10 @@ class InputExpenseState extends State<InputExpense> {
     _category = null;
   }
 
-  Widget getCategoryBtn(String name) {
+  Widget getCategoryBtn(String name, Color color) {
     return new FlatButton(
+                  padding: EdgeInsets.zero,
+
         onPressed: () {
           setState(() {
             _category = _category != name ? name : null;
@@ -43,9 +45,12 @@ class InputExpenseState extends State<InputExpense> {
         child: new Column(children: <Widget>[
           Icon(Icons.free_breakfast,
               color: _category == null || _category == name
-                  ? Colors.blue
-                  : Colors.red),
-                  Text(name, style: new TextStyle(fontSize: 8.0),)
+                  ? color
+                  : Colors.grey),
+          Text(
+            name,
+            style: new TextStyle(fontSize: 12.0, fontWeight: FontWeight.w100),
+          )
         ]));
   }
 
@@ -57,21 +62,22 @@ class InputExpenseState extends State<InputExpense> {
         appBar: new AppBar(
           title: new Text('Add expense'),
           actions: <Widget>[
-             new IconButton(
-            icon: const Icon(Icons.check),
-            onPressed: () async {
-              ApplicationDatabase db = new ApplicationDatabase();
-              try {
-                 final expense = new Expense(double.parse(inputController.text),
-                  "test", DateTime.now(), "here", _category);
-              await db.insertExpense(expense);
-              Navigator.pop(context);
-              } catch (e) {
-              }
-
-             
-            },
-          )
+            new IconButton(
+              icon: const Icon(Icons.check),
+              onPressed: () async {
+                ApplicationDatabase db = new ApplicationDatabase();
+                try {
+                  final expense = new Expense(
+                      double.parse(inputController.text),
+                      "test",
+                      DateTime.now(),
+                      "here",
+                      _category);
+                  await db.insertExpense(expense);
+                  Navigator.pop(context);
+                } catch (e) {}
+              },
+            )
           ],
         ),
         body: new Column(children: <Widget>[
@@ -95,14 +101,13 @@ class InputExpenseState extends State<InputExpense> {
             shrinkWrap: true,
             crossAxisCount: 5,
             children: <Widget>[
-              getCategoryBtn("Alcohol"),
-              getCategoryBtn("Koffie"),
-              getCategoryBtn("Brood"),
-              getCategoryBtn("Maaltijden"),
-              getCategoryBtn("Vlees"),
+              getCategoryBtn("Alcohol", Colors.red),
+              getCategoryBtn("Koffie", Colors.green),
+              getCategoryBtn("Brood", Colors.blue),
+              getCategoryBtn("Maaltijden", Colors.purple),
+              getCategoryBtn("Vlees", Colors.orange),
             ],
           ),
-         
         ]));
   }
 }

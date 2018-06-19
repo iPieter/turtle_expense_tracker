@@ -17,6 +17,8 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
     fontSize: 18.0,
   );
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
   static final _db = new ApplicationDatabase();
 
   Widget _buildRow(Expense expense) {
@@ -86,9 +88,9 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.none:
-              return new Text('Press button to start');
+            //return new Text('Press button to start');
             case ConnectionState.waiting:
-              return new Text('Awaiting result...');
+            //return new Text('Awaiting result...');
             default:
               if (snapshot.hasError)
                 return new Text('Error: ${snapshot.error}');
@@ -113,6 +115,40 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
+      key: _scaffoldKey,
+      drawer: new Drawer(
+        // Add a ListView to the drawer. This ensures the user can scroll
+        // through the options in the Drawer if there isn't enough vertical
+        // space to fit everything.
+        child: new ListView(
+          // Important: Remove any padding from the ListView.
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            new DrawerHeader(
+              child: new Text('Turtle', style: const TextStyle(color: Colors.white, fontSize: 30.0,)),
+              decoration: new BoxDecoration(
+                color: Colors.lightBlue,
+              ),
+            ),
+            new ListTile(
+              title: new Text('Clear database'),
+              onTap: () {
+                setState(() {
+                  _db.deleteDatabase();
+                });
+                Navigator.pop(context);
+              },
+            ),
+            new ListTile(
+              title: new Text('Item 2'),
+              onTap: () {
+                // Update the state of the app
+                // ...
+              },
+            ),
+          ],
+        ),
+      ),
       floatingActionButton: new FloatingActionButton(
         child: new Image.network(
             "https://emoji.slack-edge.com/T7738P6P3/bob/0dbb39dcbacebe4e.png"),
@@ -122,19 +158,17 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
         title: new Text('Expenses'),
         actions: <Widget>[
           new IconButton(
-              icon: new Icon(Icons.clear),
-              onPressed: () {
-                setState(() {
-                  _db.deleteDatabase();
-                });
-              }),
-          new IconButton(
               icon: new Icon(Icons.add),
               onPressed: () {
                 Navigator.of(context).push(new MaterialPageRoute(
                     builder: (_) => new InputExpense(_expenses)));
               }),
         ],
+        leading: new IconButton(
+            icon: new Icon(Icons.menu),
+            onPressed: () {
+              _scaffoldKey.currentState.openDrawer();
+            }),
       ),
       body: _buildSuggestions(),
     );
