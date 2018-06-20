@@ -115,7 +115,7 @@ Widget _buildList() {
             }),
       ),
       body: new Column(children: <Widget>[
-        new Flexible(flex: 1, child: PatternForwardHatchBarChart.withSampleData()),
+        new Flexible(flex: 1, child: new PatternForwardHatchBarChart()),
         new Flexible(flex: 2, child: _buildList(),),
         
       ],),
