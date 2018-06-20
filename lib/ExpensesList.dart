@@ -4,6 +4,7 @@ import 'ApplicationDatabase.dart';
 import 'Expense.dart';
 import 'InputExpense.dart';
 import 'package:intl/intl.dart';
+import 'DateFormatter.dart';
 
 class ExpensesList extends StatefulWidget {
   @override
@@ -51,7 +52,6 @@ class _ExpensesListState extends State<ExpensesList> {
   }
 
   Widget _buildRow(Expense expense) {
-    var formatter = new DateFormat('EEE DD/MM/yyyy hh:mm');
     return new ListTile(
       dense: false,
       title: expense.name != null
@@ -65,7 +65,7 @@ class _ExpensesListState extends State<ExpensesList> {
             ),
       subtitle: expense.when != null
           ? Text(
-              expense.category + " • " + formatter.format(expense.when),
+              expense.category + " • " + DateFormatter.prettyPrint(expense.when),
               //style: _biggerFont,
             )
           : Text(

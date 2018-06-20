@@ -19,7 +19,7 @@ class Statistics {
 
   Future<double> sumForAll(DateTime start, DateTime end) async {
     var expenses = await _db.getExpensesInPeriod(start, end);
-    if (expenses.length != 0)
+    if (expenses.length > 0)
       return expenses.map((expense) => expense.amount).reduce((a, b) => a + b);
     else
       return new Future(() {

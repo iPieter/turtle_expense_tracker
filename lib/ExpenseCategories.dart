@@ -32,7 +32,7 @@ Widget _buildList() {
             case ConnectionState.waiting:
             //return new Text('Awaiting result...');
             default:
-              if (snapshot.hasError)
+              if (snapshot.hasError || snapshot.data == null)
                 return new Text('Error: ${snapshot.error}');
               else
                 return new ListView.builder(
@@ -44,7 +44,7 @@ Widget _buildList() {
 
                       if (index < snapshot.data.length) {
                         return new Text(snapshot.data[index].category);
-                      } else if (snapshot.data.length == 0 && i == 0) {
+                      } else if (snapshot.data.length == 0 && i == 0 ) {
                         return new Text("no entries");
                       }
                     });

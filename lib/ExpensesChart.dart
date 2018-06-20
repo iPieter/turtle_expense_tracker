@@ -21,7 +21,7 @@ class PatternForwardHatchBarChart extends StatelessWidget {
             case ConnectionState.waiting:
               return new Text('Awaiting result...');
             default:
-              if (snapshot.hasError)
+              if (snapshot.hasError || snapshot.data.length == 0)
                 return new Text('Error: ${snapshot.error}');
               else
                 return new charts.BarChart(
