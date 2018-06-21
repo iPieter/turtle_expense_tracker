@@ -41,8 +41,8 @@ class Statistics {
     var thisWeekDates = getWeekDates(0);
     var lastWeekDates = getWeekDates(1);
 
-    List<Tuple2<String,double>> thisWeek = await _db.getExpensesInPeriod(thisWeekDates[0], thisWeekDates[1]);
-    List<Tuple2<String,double>> lastWeek = await _db.getExpensesInPeriod(lastWeekDates[0], lastWeekDates[1]);
+    List<Tuple2<String,double>> thisWeek = await _db.getCategoryCount(thisWeekDates[0], thisWeekDates[1]);
+    List<Tuple2<String,double>> lastWeek = await _db.getCategoryCount(lastWeekDates[0], lastWeekDates[1]);
 
     var result = new List<Tuple3<String,double,double>>();
 
@@ -57,7 +57,7 @@ class Statistics {
 
     result.sort((e1,e2) => (e1.item2 - e2.item2).toInt() );
 
-    return result;
+    return result.reversed.toList();
   }
 
   Future<List<Ordinal>> getSumForWeeks(int numberOfWeeks) async {

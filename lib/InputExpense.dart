@@ -73,6 +73,7 @@ class InputExpenseState extends State<InputExpense> {
                       new Location("Paul's bakery", 1.0, 2.0 ),
                       _category);
                   await db.insertExpense(expense);
+
                   Navigator.pop(context);
                 } catch (e) {}
               },

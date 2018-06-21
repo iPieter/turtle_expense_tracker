@@ -7,6 +7,7 @@ import 'Expense.dart';
 import 'ExpensesList.dart';
 import 'ExpensesChart.dart';
 import 'package:tuple/tuple.dart';
+import 'Statistics.dart';
 
 class ExpenseCategories extends StatefulWidget {
   @override
@@ -23,9 +24,11 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
 
   static final _db = new ApplicationDatabase();
 
+  static final stats = new Statistics();
+
   Widget _buildList() {
-    return new FutureBuilder<List<Tuple2<String, double>>>(
-        future: _db.getCategoryCount(),
+    return new FutureBuilder<List<Tuple3<String, double,double>>>(
+        future: stats.getWeekData(),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.none:
@@ -63,9 +66,9 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
                                           ),
                                           
                                           new Text(
-                                            "+ €" +
-                                                snapshot.data[index].item2
-                                                    .toString(),
+                                            "+ %" +
+                                                snapshot.data[index].item3
+                                                    .toStringAsFixed(2),
                                             style: const TextStyle(
                                                 color: Colors.red,
                                                 fontWeight: FontWeight.w100,

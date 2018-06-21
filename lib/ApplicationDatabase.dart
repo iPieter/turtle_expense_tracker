@@ -24,8 +24,8 @@ class ApplicationDatabase {
       Directory documentsDirectory = await getApplicationDocumentsDirectory();
       String path = [documentsDirectory.path, "app.db"].join();
 
-      print("Deleting old db");
-      await db_utils.deleteDatabase(path);
+      //print("Deleting old db");
+      //await db_utils.deleteDatabase(path);
 
       _db = await db_utils.openDatabase(path, version: 1,
           onCreate: (db_utils.Database db, int version) async {
