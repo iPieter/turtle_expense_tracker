@@ -57,7 +57,7 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
                                         crossAxisAlignment: CrossAxisAlignment.end,
                                         children: <Widget>[
                                           new Text(
-                                            " €" +
+                                            " € " +
                                                 snapshot.data[index].item2
                                                     .toString() +
                                                 " ",
@@ -68,7 +68,7 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
                                           new Text(
                                             (snapshot.data[index].item3 > 0 ? "+" : "") +
                                                 snapshot.data[index].item3
-                                                    .toStringAsFixed(2) + " %",
+                                                    .toStringAsFixed(0) + " %",
                                             style: TextStyle(
                                                 color: (snapshot.data[index].item3 > 0) ? Colors.red : Colors.green,
                                                 fontWeight: FontWeight.w100,
