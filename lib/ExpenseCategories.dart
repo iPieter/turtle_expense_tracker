@@ -66,9 +66,9 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
                                           ),
                                           
                                           new Text(
-                                            "+ %" +
+                                            "" +
                                                 snapshot.data[index].item3
-                                                    .toStringAsFixed(2),
+                                                    .toStringAsFixed(2) + " %",
                                             style: const TextStyle(
                                                 color: Colors.red,
                                                 fontWeight: FontWeight.w100,

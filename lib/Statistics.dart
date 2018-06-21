@@ -49,7 +49,7 @@ class Statistics {
     for( var expense in thisWeek ) {
       var catLastWeek = lastWeek.firstWhere((e) => e.item1 == expense.item1, orElse : () => null );
       if( catLastWeek != null ) {
-        result.add(new Tuple3(expense.item1, expense.item2, (catLastWeek.item2 - expense.item2) / catLastWeek.item2 * 100.0 ));
+        result.add(new Tuple3(expense.item1, expense.item2, (expense.item2 - catLastWeek.item2) / expense.item2 * 100.0 ));
       } else {
         result.add(new Tuple3(expense.item1, expense.item2, 100.0 ));
       }
