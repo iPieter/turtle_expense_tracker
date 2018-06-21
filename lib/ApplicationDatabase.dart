@@ -135,7 +135,7 @@ class ApplicationDatabase {
 
     print("Building list");
 
-    return _buildList(expenses, locations);
+    return _buildList(expenses, locations).reversed.toList();
   }
 
   Future<List<Tuple2<String,int>>> getCategoryCount() async {

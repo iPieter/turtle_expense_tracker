@@ -37,14 +37,21 @@ Widget _buildList() {
               else
                 return new ListView.builder(
                     padding: const EdgeInsets.all(16.0),
-                    itemBuilder: (context, i) {
-                      if (i.isOdd) return new Divider();
-
-                      final index = i ~/ 2;
+                    itemBuilder: (context, index) {
 
                       if (index < snapshot.data.length) {
-                        return new Text(snapshot.data[index].category);
-                      } else if (snapshot.data.length == 0 && i == 0 ) {
+                        return new Card(child: new ListTile(
+                          leading: const Icon(Icons.category),
+                          title: new Text(snapshot.data[index].category),
+                          trailing: new Row(
+                            children: <Widget>[
+                               const Icon(Icons.trending_up, color: Colors.redAccent,),
+                               const Text("€ 22.00 ", style: const TextStyle(color: Colors.red),),
+                               const Icon(Icons.unfold_more),
+                            ],
+                          ),
+                          ));
+                      } else if (snapshot.data.length == 0 && index == 0 ) {
                         return new Text("no entries");
                       }
                     });
