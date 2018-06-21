@@ -61,16 +61,16 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
                                                 snapshot.data[index].item2
                                                     .toString() +
                                                 " ",
-                                            style: const TextStyle(
-                                                color: Colors.red),
+                                            style: TextStyle(
+                                                color: (snapshot.data[index].item3 > 0) ? Colors.red : Colors.green),
                                           ),
                                           
                                           new Text(
-                                            "" +
+                                            (snapshot.data[index].item3 > 0 ? "+" : "") +
                                                 snapshot.data[index].item3
                                                     .toStringAsFixed(2) + " %",
-                                            style: const TextStyle(
-                                                color: Colors.red,
+                                            style: TextStyle(
+                                                color: (snapshot.data[index].item3 > 0) ? Colors.red : Colors.green,
                                                 fontWeight: FontWeight.w100,
                                                 fontSize: 10.0),
                                           ),
