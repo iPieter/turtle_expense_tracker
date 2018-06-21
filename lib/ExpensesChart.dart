@@ -4,7 +4,6 @@ import 'Expense.dart';
 import 'Statistics.dart';
 
 class PatternForwardHatchBarChart extends StatelessWidget {
-  final List<charts.Series> seriesList;
   final bool animate;
 
   PatternForwardHatchBarChart({this.animate});

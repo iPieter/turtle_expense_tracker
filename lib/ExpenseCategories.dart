@@ -6,6 +6,7 @@ import 'InputExpense.dart';
 import 'Expense.dart';
 import 'ExpensesList.dart';
 import 'ExpensesChart.dart';
+import 'package:tuple/tuple.dart';
 
 class ExpenseCategories extends StatefulWidget {
   @override
@@ -22,9 +23,9 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
 
   static final _db = new ApplicationDatabase();
 
-Widget _buildList() {
-    return new FutureBuilder<List<Expense>>(
-        future: _db.getAllExpenses(),
+  Widget _buildList() {
+    return new FutureBuilder<List<Tuple2<String, double>>>(
+        future: _db.getCategoryCount(),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.none:
@@ -38,20 +39,45 @@ Widget _buildList() {
                 return new ListView.builder(
                     padding: const EdgeInsets.all(16.0),
                     itemBuilder: (context, index) {
-
                       if (index < snapshot.data.length) {
-                        return new Card(child: new ListTile(
-                          leading: const Icon(Icons.category),
-                          title: new Text(snapshot.data[index].category),
-                          trailing: new Row(
-                            children: <Widget>[
-                               const Icon(Icons.trending_up, color: Colors.redAccent,),
-                               const Text("€ 22.00 ", style: const TextStyle(color: Colors.red),),
-                               const Icon(Icons.unfold_more),
-                            ],
-                          ),
-                          ));
-                      } else if (snapshot.data.length == 0 && index == 0 ) {
+                        return new Card(
+                            child: new ListTile(
+                                leading: const Icon(Icons.category),
+                                title: new Text(snapshot.data[index].item1),
+                                trailing: new SizedBox(
+                                  width: 100.0,
+                                  child: new Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: <Widget>[
+                                      
+                                      new Column(
+                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                        children: <Widget>[
+                                          new Text(
+                                            " €" +
+                                                snapshot.data[index].item2
+                                                    .toString() +
+                                                " ",
+                                            style: const TextStyle(
+                                                color: Colors.red),
+                                          ),
+                                          
+                                          new Text(
+                                            "+ €" +
+                                                snapshot.data[index].item2
+                                                    .toString(),
+                                            style: const TextStyle(
+                                                color: Colors.red,
+                                                fontWeight: FontWeight.w100,
+                                                fontSize: 10.0),
+                                          ),
+                                        ],
+                                      ),
+                                      const Icon(Icons.unfold_more),
+                                    ],
+                                  ),
+                                )));
+                      } else if (snapshot.data.length == 0 && index == 0) {
                         return new Text("no entries");
                       }
                     });
@@ -72,7 +98,11 @@ Widget _buildList() {
           padding: EdgeInsets.zero,
           children: <Widget>[
             new DrawerHeader(
-              child: new Text('Turtle', style: const TextStyle(color: Colors.white, fontSize: 30.0,)),
+              child: new Text('Turtle',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 30.0,
+                  )),
               decoration: new BoxDecoration(
                 color: Colors.lightBlue,
               ),
@@ -81,8 +111,8 @@ Widget _buildList() {
               leading: const Icon(Icons.list),
               title: new Text('View All Expenses'),
               onTap: () {
-                Navigator.of(context).push(new MaterialPageRoute(
-                    builder: (_) => new ExpensesList()));
+                Navigator.of(context).push(
+                    new MaterialPageRoute(builder: (_) => new ExpensesList()));
               },
             ),
             new Divider(),
@@ -96,7 +126,6 @@ Widget _buildList() {
                 Navigator.pop(context);
               },
             ),
-            
           ],
         ),
       ),
@@ -121,11 +150,15 @@ Widget _buildList() {
               _scaffoldKey.currentState.openDrawer();
             }),
       ),
-      body: new Column(children: <Widget>[
-        new Flexible(flex: 1, child: new PatternForwardHatchBarChart()),
-        new Flexible(flex: 2, child: _buildList(),),
-        
-      ],),
+      body: new Column(
+        children: <Widget>[
+          new Flexible(flex: 1, child: new PatternForwardHatchBarChart()),
+          new Flexible(
+            flex: 2,
+            child: _buildList(),
+          ),
+        ],
+      ),
     );
   }
 }

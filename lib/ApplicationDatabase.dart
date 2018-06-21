@@ -138,15 +138,15 @@ class ApplicationDatabase {
     return _buildList(expenses, locations).reversed.toList();
   }
 
-  Future<List<Tuple2<String,int>>> getCategoryCount() async {
+  Future<List<Tuple2<String,double>>> getCategoryCount() async {
       print("Fetching categories");
       var db = await _getDB();
 
-      var result = new List<Tuple2<String, int>>();
-      List<Map> categoryCount =  await db.rawQuery("SELECT category, COUNT(category) FROM Expense GROUP BY category");
+      var result = new List<Tuple2<String, double>>();
+      List<Map> categoryCount =  await db.rawQuery("SELECT category, amount, SUM(amount) FROM Expense GROUP BY category");
 
       for( var entry in categoryCount ) {
-        result.add(new Tuple2(entry["category"], entry["COUNT(category)"]));
+        result.add(new Tuple2(entry["category"], entry["SUM(amount)"]));
       }
 
       return result;
