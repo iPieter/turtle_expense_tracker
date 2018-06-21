@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'Expense.dart';
 import 'Location.dart';
 import 'package:mutex/mutex.dart';
+import 'package:tuple/tuple.dart';
 
 class ApplicationDatabase {
   static final ApplicationDatabase _singleton =
@@ -135,6 +136,20 @@ class ApplicationDatabase {
     print("Building list");
 
     return _buildList(expenses, locations);
+  }
+
+  Future<List<Tuple2<String,int>>> getCategoryCount() async {
+      print("Fetching categories");
+      var db = await _getDB();
+
+      var result = new List<Tuple2<String, int>>();
+      List<Map> categoryCount =  await db.rawQuery("SELECT category, COUNT(category) FROM Expense GROUP BY category");
+
+      for( var entry in categoryCount ) {
+        result.add(new Tuple2(entry["category"], entry["COUNT(category)"]));
+      }
+
+      return result;
   }
 
   ApplicationDatabase._internal() {
