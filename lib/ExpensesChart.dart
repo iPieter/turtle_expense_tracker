@@ -26,6 +26,11 @@ class PatternForwardHatchBarChart extends StatelessWidget {
                 return new charts.BarChart(
                   _createData(snapshot.data, snapshot.data[7].x),
                   animate: animate,
+                  layoutConfig: new charts.LayoutConfig(
+                      leftMarginSpec: new charts.MarginSpec.fixedPixel(32),
+                      bottomMarginSpec: new charts.MarginSpec.fixedPixel(5),
+                      rightMarginSpec: new charts.MarginSpec.fixedPixel(22),
+                      topMarginSpec: new charts.MarginSpec.fixedPixel(20)),
                   barGroupingType: charts.BarGroupingType.grouped,
                 );
           }

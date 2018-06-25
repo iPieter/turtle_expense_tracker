@@ -63,7 +63,7 @@ class _ExpensesListState extends State<ExpensesList> {
               "Unknown name",
               style: const TextStyle(color: Colors.redAccent),
             ),
-      subtitle: expense.when != null
+      subtitle: expense.when != null && expense.category != null
           ? Text(
               expense.category + " • " + DateFormatter.prettyPrint(expense.when),
               //style: _biggerFont,

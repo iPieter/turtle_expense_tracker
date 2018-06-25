@@ -76,7 +76,7 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
                                           ),
                                         ],
                                       ),
-                                      const Icon(Icons.unfold_more),
+                                      //const Icon(Icons.chevron_right),
                                     ],
                                   ),
                                 )));
