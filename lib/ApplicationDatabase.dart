@@ -12,7 +12,7 @@ class ApplicationDatabase {
       new ApplicationDatabase._internal();
 
   db_utils.Database _db;
-  Mutex mutex; 
+  Mutex mutex;
 
   factory ApplicationDatabase() {
     return _singleton;

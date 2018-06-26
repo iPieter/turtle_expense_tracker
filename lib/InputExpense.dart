@@ -62,20 +62,25 @@ class InputExpenseState extends State<InputExpense> {
           title: new Text('Add expense'),
           actions: <Widget>[
             new IconButton(
-              icon: const Icon(Icons.check),
+              icon: new Icon(
+                Icons.check,
+                color: _category == null ? Colors.grey : Colors.black,
+              ),
               onPressed: () async {
-                ApplicationDatabase db = new ApplicationDatabase();
-                try {
-                  final expense = new Expense(
-                      double.parse(inputController.text),
-                      "test",
-                      new DateTime.now(),
-                      new Location("Paul's bakery", 1.0, 2.0 ),
-                      _category);
-                  await db.insertExpense(expense);
+                if (_category != null) {
+                  ApplicationDatabase db = new ApplicationDatabase();
+                  try {
+                    final expense = new Expense(
+                        double.parse(inputController.text),
+                        "test",
+                        new DateTime.now(),
+                        new Location("Paul's bakery", 1.0, 2.0),
+                        _category);
+                    await db.insertExpense(expense);
 
-                  Navigator.pop(context);
-                } catch (e) {}
+                    Navigator.pop(context);
+                  } catch (e) {}
+                }
               },
             )
           ],
@@ -93,7 +98,7 @@ class InputExpenseState extends State<InputExpense> {
             ),
             inputFormatters: <TextInputFormatter>[
               new CurrencyInputFormatter(
-                  allowSubdivisions: true, subdivisionMarker: "."),
+                  allowSubdivisions: true, subdivisionMarker: ","),
             ],
             style: const TextStyle(fontSize: 28.0, color: Colors.black87),
           ),
