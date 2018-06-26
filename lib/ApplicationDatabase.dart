@@ -12,7 +12,7 @@ class ApplicationDatabase {
       new ApplicationDatabase._internal();
 
   db_utils.Database _db;
-  Mutex mutex;
+  Mutex mutex; 
 
   factory ApplicationDatabase() {
     return _singleton;
@@ -22,7 +22,7 @@ class ApplicationDatabase {
     await mutex.acquire();
     if (_db == null) {
       Directory documentsDirectory = await getApplicationDocumentsDirectory();
-      String path = [documentsDirectory.path, "app.db"].join();
+      String path = [documentsDirectory.path, "app.db"].join("/");
 
       //print("Deleting old db");
       //await db_utils.deleteDatabase(path);
