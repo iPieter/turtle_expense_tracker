@@ -42,13 +42,14 @@ class InputExpenseState extends State<InputExpense> {
             _category = _category != name ? name : null;
           });
         },
-        child: new Column(children: <Widget>[
+        child: new Column(mainAxisAlignment: MainAxisAlignment.start, crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[
           Icon(Icons.crop_landscape,
               color:
                   _category == null || _category == name ? color : Colors.grey),
           Text(
             name,
-            style: new TextStyle(fontSize: 12.0, fontWeight: FontWeight.w100),
+            textAlign: TextAlign.center,
+            style: new TextStyle(fontSize: 12.0, fontWeight: FontWeight.w100,),
           )
         ]));
   }
@@ -106,11 +107,21 @@ class InputExpenseState extends State<InputExpense> {
             shrinkWrap: true,
             crossAxisCount: 5,
             children: <Widget>[
-              getCategoryBtn("Alcohol", Colors.red),
-              getCategoryBtn("Koffie", Colors.green),
-              getCategoryBtn("Brood", Colors.blue),
-              getCategoryBtn("Maaltijden", Colors.purple),
-              getCategoryBtn("Vlees", Colors.orange),
+              getCategoryBtn("Brood", Colors.brown),
+              getCategoryBtn("Alcohol", Colors.amber),
+              getCategoryBtn("Vlees en vis", Colors.blueAccent),
+              getCategoryBtn("Groenten en fruit", Colors.green),
+              getCategoryBtn("Kaas", Colors.yellow),
+              getCategoryBtn("Snacks", Colors.red),
+              getCategoryBtn("Frieten", Colors.orangeAccent),
+              getCategoryBtn("Frisdrank", Colors.deepOrange),
+              getCategoryBtn("Koffie", Colors.black87),
+              getCategoryBtn("Maaltijden", Colors.teal),
+              getCategoryBtn("Vertier", Colors.purple),
+              getCategoryBtn("Shopping", Colors.blueGrey),
+              getCategoryBtn("Gezondheid", Colors.greenAccent),
+              getCategoryBtn("ICT", Colors.indigo),
+              getCategoryBtn("Andere", Colors.pink),
             ],
           ),
         ]));
