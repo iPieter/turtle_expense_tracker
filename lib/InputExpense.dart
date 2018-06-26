@@ -72,7 +72,7 @@ class InputExpenseState extends State<InputExpense> {
                   ApplicationDatabase db = new ApplicationDatabase();
                   try {
                     final expense = new Expense(
-                        double.parse(inputController.text),
+                        double.parse(inputController.text.replaceFirst(",", ".")),
                         "test",
                         new DateTime.now(),
                         new Location("Paul's bakery", 1.0, 2.0),

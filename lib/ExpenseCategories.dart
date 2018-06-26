@@ -59,7 +59,7 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
                                           new Text(
                                             " € " +
                                                 snapshot.data[index].item2
-                                                    .toString() +
+                                                    .toStringAsFixed(2) +
                                                 " ",
                                             style: TextStyle(
                                                 color: (snapshot.data[index].item3 > 0) ? Colors.red : Colors.green),
