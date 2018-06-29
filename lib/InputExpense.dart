@@ -5,6 +5,7 @@ import 'package:charts_flutter/flutter.dart' as charts;
 import 'ApplicationDatabase.dart';
 import 'Expense.dart';
 import 'Location.dart';
+import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart';
 
 class InputExpense extends StatefulWidget {
   List<Expense> _expenses;
@@ -42,16 +43,23 @@ class InputExpenseState extends State<InputExpense> {
             _category = _category != name ? name : null;
           });
         },
-        child: new Column(mainAxisAlignment: MainAxisAlignment.start, crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[
-          Icon(Icons.crop_landscape,
-              color:
-                  _category == null || _category == name ? color : Colors.grey),
-          Text(
-            name,
-            textAlign: TextAlign.center,
-            style: new TextStyle(fontSize: 12.0, fontWeight: FontWeight.w100,),
-          )
-        ]));
+        child: new Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Icon(Icons.crop_landscape,
+                  color: _category == null || _category == name
+                      ? color
+                      : Colors.grey),
+              Text(
+                name,
+                textAlign: TextAlign.center,
+                style: new TextStyle(
+                  fontSize: 12.0,
+                  fontWeight: FontWeight.w100,
+                ),
+              )
+            ]));
   }
 
   @override
@@ -72,7 +80,8 @@ class InputExpenseState extends State<InputExpense> {
                   ApplicationDatabase db = new ApplicationDatabase();
                   try {
                     final expense = new Expense(
-                        double.parse(inputController.text.replaceFirst(",", ".")),
+                        double
+                            .parse(inputController.text.replaceFirst(",", ".")),
                         "test",
                         new DateTime.now(),
                         new Location("Paul's bakery", 1.0, 2.0),
@@ -87,21 +96,44 @@ class InputExpenseState extends State<InputExpense> {
           ],
         ),
         body: new Column(children: <Widget>[
-          new TextField(
-            controller: inputController,
-            autofocus: true,
-            keyboardType: TextInputType.number,
-            textAlign: TextAlign.right,
-            decoration: const InputDecoration(
-              contentPadding: const EdgeInsets.all(15.0),
-              prefixText: '\€',
-              border: InputBorder.none,
-            ),
-            inputFormatters: <TextInputFormatter>[
-              new CurrencyInputFormatter(
-                  allowSubdivisions: true, subdivisionMarker: ","),
+          new Row(
+            children: <Widget>[
+              new Flexible(
+                child: new TextField(
+                  controller: inputController,
+                  autofocus: true,
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.right,
+                  decoration: const InputDecoration(
+                    contentPadding: const EdgeInsets.all(15.0),
+                    prefixText: '\€',
+                    border: InputBorder.none,
+                  ),
+                  inputFormatters: <TextInputFormatter>[
+                    new CurrencyInputFormatter(
+                        allowSubdivisions: true, subdivisionMarker: ","),
+                  ],
+                  style: const TextStyle(fontSize: 28.0, color: Colors.black87),
+                ),
+              ),
+              new FlatButton(
+                padding: EdgeInsets.all(0.0),
+                child: const Icon(Icons.today, color: Colors.grey),
+                onPressed: () {
+                  DatePicker.showDatePicker(
+                    context,
+                    showTitleActions: true,
+                    minYear: 1970,
+                    maxYear: 2020,
+                    initialYear: new DateTime.now().year,
+                    initialMonth: new DateTime.now().month,
+                    initialDate: new DateTime.now().day,
+                    onChanged: (year, month, date) {},
+                    onConfirm: (year, month, date) {},
+                  );
+                },
+              )
             ],
-            style: const TextStyle(fontSize: 28.0, color: Colors.black87),
           ),
           new GridView.count(
             shrinkWrap: true,
