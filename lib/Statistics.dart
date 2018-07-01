@@ -57,7 +57,7 @@ class Statistics {
 
     result.sort((e1,e2) => (e1.item2 - e2.item2).toInt() );
 
-    return result.reversed.toList();
+    return result.reversed.toList().sublist(0, result.length > 5 ? 5 : result.length);
   }
 
   Future<List<Ordinal>> getSumForWeeks(int numberOfWeeks) async {
