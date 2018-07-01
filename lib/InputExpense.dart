@@ -10,6 +10,7 @@ import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart
 class InputExpense extends StatefulWidget {
   List<Expense> _expenses;
   String _category;
+  DateTime _otherDate;
 
   InputExpense(List<Expense> expenses) {
     _expenses = expenses;
@@ -28,6 +29,7 @@ class InputExpenseState extends State<InputExpense> {
     _expenses = expenses;
   }
   String _category;
+  DateTime _otherDate;
 
   @override
   void initState() {
@@ -83,7 +85,7 @@ class InputExpenseState extends State<InputExpense> {
                         double
                             .parse(inputController.text.replaceFirst(",", ".")),
                         "test",
-                        new DateTime.now(),
+                        _otherDate == null ? new DateTime.now() : _otherDate,
                         new Location("Paul's bakery", 1.0, 2.0),
                         _category);
                     await db.insertExpense(expense);
@@ -117,19 +119,23 @@ class InputExpenseState extends State<InputExpense> {
                 ),
               ),
               new FlatButton(
-                padding: EdgeInsets.all(0.0),
-                child: const Icon(Icons.today, color: Colors.grey),
+                padding: EdgeInsets.zero,
+                child: new Icon(Icons.today, color: _otherDate == null ? Colors.grey : Colors.black),
                 onPressed: () {
                   DatePicker.showDatePicker(
                     context,
                     showTitleActions: true,
                     minYear: 1970,
                     maxYear: 2020,
-                    initialYear: new DateTime.now().year,
-                    initialMonth: new DateTime.now().month,
-                    initialDate: new DateTime.now().day,
+                    initialYear: _otherDate == null? new DateTime.now().year : _otherDate.year,
+                    initialMonth: _otherDate == null? new DateTime.now().month : _otherDate.month,
+                    initialDate: _otherDate == null? new DateTime.now().day : _otherDate.day,
                     onChanged: (year, month, date) {},
-                    onConfirm: (year, month, date) {},
+                    onConfirm: (year, month, date) {
+                      setState(() {
+                        _otherDate = new DateTime(year, month, date);
+                      });
+                    },
                   );
                 },
               )
