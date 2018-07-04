@@ -22,6 +22,7 @@ class InputExpense extends StatefulWidget {
 
 class InputExpenseState extends State<InputExpense> {
   final inputController = new TextEditingController();
+  final titleInputController = new TextEditingController();
 
   List<Expense> _expenses;
 
@@ -84,7 +85,9 @@ class InputExpenseState extends State<InputExpense> {
                     final expense = new Expense(
                         double
                             .parse(inputController.text.replaceFirst(",", ".")),
-                        "test",
+                        titleInputController.text.isEmpty
+                            ? _category
+                            : titleInputController.text.trim(),
                         _otherDate == null ? new DateTime.now() : _otherDate,
                         new Location("Paul's bakery", 1.0, 2.0),
                         _category);
@@ -145,7 +148,7 @@ class InputExpenseState extends State<InputExpense> {
                     },
                   );
                 },
-              )
+              ),
             ],
           ),
           new GridView.count(
@@ -168,6 +171,17 @@ class InputExpenseState extends State<InputExpense> {
               getCategoryBtn("ICT", Colors.indigo),
               getCategoryBtn("Andere", Colors.pink),
             ],
+          ),
+          new Card(
+            margin: EdgeInsets.all(12.0),
+            child: new ListTile(
+              title: new TextField(
+                controller: titleInputController,
+                decoration: null,
+                //style: const TextStyle(color: Colors.grey),
+              ),
+              leading: const Icon(Icons.label),
+            ),
           ),
         ]));
   }
