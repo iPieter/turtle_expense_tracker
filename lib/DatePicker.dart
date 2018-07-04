@@ -16,18 +16,18 @@ const int _kDefaultMinYear = 1900;
 const int _kDefaultMaxYear = 200;
 
 const List<String> monthNames = const <String>[
-  '1月',
-  '2月',
-  '3月',
-  '4月',
-  '5月',
-  '6月',
-  '7月',
-  '8月',
-  '9月',
-  '10月',
-  '11月',
-  '12月',
+  '1',
+  '2',
+  '3',
+  '4',
+  '5',
+  '6',
+  '7',
+  '8',
+  '9',
+  '10',
+  '11',
+  '12',
 ];
 
 const List<int> leapYearMonths = const <int>[1, 3, 5, 7, 8, 10, 12];
@@ -289,32 +289,30 @@ class _DatePickerState extends State<_DatePickerComponent> {
         Expanded(
           flex: 1,
           child: Container(
-            padding: EdgeInsets.all(8.0),
-            height: _kDatePickerHeight,
-            decoration: BoxDecoration(color: Colors.white),
-            child: CupertinoPicker(
-              backgroundColor: Colors.white,
-              scrollController: yearScrollCtrl,
-              itemExtent: _kDatePickerItemHeight,
-              onSelectedItemChanged: (int index) {
-                _setYear(index);
-              },
-              children: List.generate(widget.maxYear - widget.minYear + 1,
-                  (int index) {
-                return Container(
-                  height: _kDatePickerItemHeight,
-                  alignment: Alignment.center,
-                  child: Text(
-                    '${widget.minYear + index}年',
-                    style: TextStyle(
-                        color: Color(0xFF000046),
-                        fontSize: _kDatePickerFontSize),
-                    textAlign: TextAlign.start,
-                  ),
-                );
-              }),
-            ),
-          ),
+              padding: EdgeInsets.all(8.0),
+              height: _kDatePickerHeight,
+              decoration: BoxDecoration(color: Colors.white),
+              child: CupertinoPicker(
+                backgroundColor: Colors.white,
+                scrollController: dateScrollCtrl,
+                itemExtent: _kDatePickerItemHeight,
+                onSelectedItemChanged: (int index) {
+                  _setDate(index);
+                },
+                children: List.generate(_dateCountOfMonth, (int index) {
+                  return Container(
+                    height: _kDatePickerItemHeight,
+                    alignment: Alignment.center,
+                    child: Text(
+                      "${index + 1}",
+                      style: TextStyle(
+                          color: Color(0xFF000046),
+                          fontSize: _kDatePickerFontSize),
+                      textAlign: TextAlign.start,
+                    ),
+                  );
+                }),
+              )),
         ),
         Expanded(
           flex: 1,
@@ -347,30 +345,32 @@ class _DatePickerState extends State<_DatePickerComponent> {
         Expanded(
           flex: 1,
           child: Container(
-              padding: EdgeInsets.all(8.0),
-              height: _kDatePickerHeight,
-              decoration: BoxDecoration(color: Colors.white),
-              child: CupertinoPicker(
-                backgroundColor: Colors.white,
-                scrollController: dateScrollCtrl,
-                itemExtent: _kDatePickerItemHeight,
-                onSelectedItemChanged: (int index) {
-                  _setDate(index);
-                },
-                children: List.generate(_dateCountOfMonth, (int index) {
-                  return Container(
-                    height: _kDatePickerItemHeight,
-                    alignment: Alignment.center,
-                    child: Text(
-                      "${index + 1}日",
-                      style: TextStyle(
-                          color: Color(0xFF000046),
-                          fontSize: _kDatePickerFontSize),
-                      textAlign: TextAlign.start,
-                    ),
-                  );
-                }),
-              )),
+            padding: EdgeInsets.all(8.0),
+            height: _kDatePickerHeight,
+            decoration: BoxDecoration(color: Colors.white),
+            child: CupertinoPicker(
+              backgroundColor: Colors.white,
+              scrollController: yearScrollCtrl,
+              itemExtent: _kDatePickerItemHeight,
+              onSelectedItemChanged: (int index) {
+                _setYear(index);
+              },
+              children: List.generate(widget.maxYear - widget.minYear + 1,
+                  (int index) {
+                return Container(
+                  height: _kDatePickerItemHeight,
+                  alignment: Alignment.center,
+                  child: Text(
+                    '${widget.minYear + index}',
+                    style: TextStyle(
+                        color: Color(0xFF000046),
+                        fontSize: _kDatePickerFontSize),
+                    textAlign: TextAlign.start,
+                  ),
+                );
+              }),
+            ),
+          ),
         ),
       ],
     );
@@ -385,11 +385,10 @@ class _DatePickerState extends State<_DatePickerComponent> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Container(
-            width: 70.0,
             height: _kDatePickerTitleHeight,
             child: FlatButton(
               child: Text(
-                '取消',
+                'Cancel',
                 style: TextStyle(
                   color: Theme.of(context).unselectedWidgetColor,
                   fontSize: 16.0,
@@ -399,13 +398,12 @@ class _DatePickerState extends State<_DatePickerComponent> {
             ),
           ),
           Container(
-            width: 70.0,
             height: _kDatePickerTitleHeight,
             child: FlatButton(
               child: Text(
-                '确定',
+                'Update date',
                 style: TextStyle(
-                  color: Theme.of(context).primaryColor,
+                  color: Colors.blueAccent,
                   fontSize: 16.0,
                 ),
               ),
