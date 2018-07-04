@@ -14,6 +14,10 @@ dependencies:
   charts_flutter: "^0.3.0"
   mutex : "^0.0.1"
   tuple : "^1.0.1"
+  logging: "^0.11.3+1"
+  share:
+    git:
+     url: https://github.com/d-silveira/flutter-share.git
 
 dev_dependencies:
   flutter_test:

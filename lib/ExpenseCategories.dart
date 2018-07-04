@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:currency_input_formatter/currency_input_formatter.dart';
+import 'package:path_provider/path_provider.dart';
 import 'ApplicationDatabase.dart';
 import 'InputExpense.dart';
 import 'Expense.dart';
@@ -8,6 +11,7 @@ import 'ExpensesList.dart';
 import 'ExpensesChart.dart';
 import 'package:tuple/tuple.dart';
 import 'Statistics.dart';
+import 'package:share/share.dart';
 
 class ExpenseCategories extends StatefulWidget {
   @override
@@ -129,6 +133,26 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
               },
             ),
             new Divider(),
+            new ListTile(
+              leading: const Icon(Icons.bookmark_border),
+              title: new Text('Share log file'),
+              onTap: () async {
+                final RenderBox box = context.findRenderObject();
+                final directory = await getApplicationDocumentsDirectory();
+
+                Share
+                    .file(
+                        mimeType: ShareType.TYPE_FILE,
+                        title: 'Log file',
+                        path: '${directory.path}/finer.log',
+                        text: 'Share the log file')
+                    .share(
+                        sharePositionOrigin:
+                            box.localToGlobal(Offset.zero) & box.size);
+
+                Navigator.pop(context);
+              },
+            ),
             new ListTile(
               leading: const Icon(Icons.delete_forever),
               title: new Text('Clear Database'),
