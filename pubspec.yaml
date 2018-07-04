@@ -14,7 +14,6 @@ dependencies:
   charts_flutter: "^0.3.0"
   mutex : "^0.0.1"
   tuple : "^1.0.1"
-  flutter_cupertino_date_picker: "^0.0.3"
 
 dev_dependencies:
   flutter_test:

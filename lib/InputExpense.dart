@@ -5,7 +5,7 @@ import 'package:charts_flutter/flutter.dart' as charts;
 import 'ApplicationDatabase.dart';
 import 'Expense.dart';
 import 'Location.dart';
-import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart';
+import 'DatePicker.dart';
 
 class InputExpense extends StatefulWidget {
   List<Expense> _expenses;
@@ -120,16 +120,23 @@ class InputExpenseState extends State<InputExpense> {
               ),
               new FlatButton(
                 padding: EdgeInsets.zero,
-                child: new Icon(Icons.today, color: _otherDate == null ? Colors.grey : Colors.black),
+                child: new Icon(Icons.today,
+                    color: _otherDate == null ? Colors.grey : Colors.black),
                 onPressed: () {
                   DatePicker.showDatePicker(
                     context,
                     showTitleActions: true,
                     minYear: 1970,
                     maxYear: 2020,
-                    initialYear: _otherDate == null? new DateTime.now().year : _otherDate.year,
-                    initialMonth: _otherDate == null? new DateTime.now().month : _otherDate.month,
-                    initialDate: _otherDate == null? new DateTime.now().day : _otherDate.day,
+                    initialYear: _otherDate == null
+                        ? new DateTime.now().year
+                        : _otherDate.year,
+                    initialMonth: _otherDate == null
+                        ? new DateTime.now().month
+                        : _otherDate.month,
+                    initialDate: _otherDate == null
+                        ? new DateTime.now().day
+                        : _otherDate.day,
                     onChanged: (year, month, date) {},
                     onConfirm: (year, month, date) {
                       setState(() {
