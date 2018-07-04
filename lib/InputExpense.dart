@@ -1,20 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:currency_input_formatter/currency_input_formatter.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
 import 'ApplicationDatabase.dart';
 import 'Expense.dart';
 import 'Location.dart';
 import 'DatePicker.dart';
 
 class InputExpense extends StatefulWidget {
-  List<Expense> _expenses;
-  String _category;
-  DateTime _otherDate;
+  final List<Expense> _expenses;
 
-  InputExpense(List<Expense> expenses) {
-    _expenses = expenses;
-  }
+  InputExpense(this._expenses);
 
   @override
   createState() => new InputExpenseState(_expenses);

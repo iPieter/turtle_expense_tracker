@@ -1,8 +1,4 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:currency_input_formatter/currency_input_formatter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'ApplicationDatabase.dart';
 import 'InputExpense.dart';
@@ -20,9 +16,6 @@ class ExpenseCategories extends StatefulWidget {
 
 class ExpenseCategoriesState extends State<ExpenseCategories> {
   static var _expenses = <Expense>[];
-  final _biggerFont = const TextStyle(
-    fontSize: 18.0,
-  );
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
