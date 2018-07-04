@@ -27,7 +27,7 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
   static final stats = new Statistics();
 
   Widget _buildList() {
-    return new FutureBuilder<List<Tuple3<String, double,double>>>(
+    return new FutureBuilder<List<Tuple3<String, double, double>>>(
         future: stats.getWeekData(),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
@@ -52,9 +52,9 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
                                   child: new Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: <Widget>[
-                                      
                                       new Column(
-                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
                                         children: <Widget>[
                                           new Text(
                                             " € " +
@@ -62,15 +62,25 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
                                                     .toStringAsFixed(2) +
                                                 " ",
                                             style: TextStyle(
-                                                color: (snapshot.data[index].item3 > 0) ? Colors.red : Colors.green),
+                                                color: (snapshot
+                                                            .data[index].item3 >
+                                                        0)
+                                                    ? Colors.red
+                                                    : Colors.green),
                                           ),
-                                          
                                           new Text(
-                                            (snapshot.data[index].item3 > 0 ? "+" : "") +
+                                            (snapshot.data[index].item3 > 0
+                                                    ? "+"
+                                                    : "") +
                                                 snapshot.data[index].item3
-                                                    .toStringAsFixed(0) + " %",
+                                                    .toStringAsFixed(0) +
+                                                " %",
                                             style: TextStyle(
-                                                color: (snapshot.data[index].item3 > 0) ? Colors.red : Colors.green,
+                                                color: (snapshot
+                                                            .data[index].item3 >
+                                                        0)
+                                                    ? Colors.red
+                                                    : Colors.green,
                                                 fontWeight: FontWeight.w100,
                                                 fontSize: 10.0),
                                           ),
@@ -131,11 +141,6 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
             ),
           ],
         ),
-      ),
-      floatingActionButton: new FloatingActionButton(
-        child: new Image.network(
-            "https://emoji.slack-edge.com/T7738P6P3/bob/0dbb39dcbacebe4e.png"),
-        onPressed: () {},
       ),
       appBar: new AppBar(
         title: new Text('Expenses'),

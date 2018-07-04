@@ -5,10 +5,12 @@ import 'package:charts_flutter/flutter.dart' as charts;
 import 'ApplicationDatabase.dart';
 import 'Expense.dart';
 import 'Location.dart';
+import 'DatePicker.dart';
 
 class InputExpense extends StatefulWidget {
   List<Expense> _expenses;
   String _category;
+  DateTime _otherDate;
 
   InputExpense(List<Expense> expenses) {
     _expenses = expenses;
@@ -27,6 +29,7 @@ class InputExpenseState extends State<InputExpense> {
     _expenses = expenses;
   }
   String _category;
+  DateTime _otherDate;
 
   @override
   void initState() {
@@ -42,16 +45,23 @@ class InputExpenseState extends State<InputExpense> {
             _category = _category != name ? name : null;
           });
         },
-        child: new Column(mainAxisAlignment: MainAxisAlignment.start, crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[
-          Icon(Icons.crop_landscape,
-              color:
-                  _category == null || _category == name ? color : Colors.grey),
-          Text(
-            name,
-            textAlign: TextAlign.center,
-            style: new TextStyle(fontSize: 12.0, fontWeight: FontWeight.w100,),
-          )
-        ]));
+        child: new Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Icon(Icons.crop_landscape,
+                  color: _category == null || _category == name
+                      ? color
+                      : Colors.grey),
+              Text(
+                name,
+                textAlign: TextAlign.center,
+                style: new TextStyle(
+                  fontSize: 12.0,
+                  fontWeight: FontWeight.w100,
+                ),
+              )
+            ]));
   }
 
   @override
@@ -72,9 +82,10 @@ class InputExpenseState extends State<InputExpense> {
                   ApplicationDatabase db = new ApplicationDatabase();
                   try {
                     final expense = new Expense(
-                        double.parse(inputController.text.replaceFirst(",", ".")),
+                        double
+                            .parse(inputController.text.replaceFirst(",", ".")),
                         "test",
-                        new DateTime.now(),
+                        _otherDate == null ? new DateTime.now() : _otherDate,
                         new Location("Paul's bakery", 1.0, 2.0),
                         _category);
                     await db.insertExpense(expense);
@@ -87,21 +98,55 @@ class InputExpenseState extends State<InputExpense> {
           ],
         ),
         body: new Column(children: <Widget>[
-          new TextField(
-            controller: inputController,
-            autofocus: true,
-            keyboardType: TextInputType.number,
-            textAlign: TextAlign.right,
-            decoration: const InputDecoration(
-              contentPadding: const EdgeInsets.all(15.0),
-              prefixText: '\€',
-              border: InputBorder.none,
-            ),
-            inputFormatters: <TextInputFormatter>[
-              new CurrencyInputFormatter(
-                  allowSubdivisions: true, subdivisionMarker: ","),
+          new Row(
+            children: <Widget>[
+              new Flexible(
+                child: new TextField(
+                  controller: inputController,
+                  autofocus: true,
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.right,
+                  decoration: const InputDecoration(
+                    contentPadding: const EdgeInsets.all(15.0),
+                    prefixText: '\€',
+                    border: InputBorder.none,
+                  ),
+                  inputFormatters: <TextInputFormatter>[
+                    new CurrencyInputFormatter(
+                        allowSubdivisions: true, subdivisionMarker: ","),
+                  ],
+                  style: const TextStyle(fontSize: 28.0, color: Colors.black87),
+                ),
+              ),
+              new FlatButton(
+                padding: EdgeInsets.zero,
+                child: new Icon(Icons.today,
+                    color: _otherDate == null ? Colors.grey : Colors.black),
+                onPressed: () {
+                  DatePicker.showDatePicker(
+                    context,
+                    showTitleActions: true,
+                    minYear: 1970,
+                    maxYear: 2020,
+                    initialYear: _otherDate == null
+                        ? new DateTime.now().year
+                        : _otherDate.year,
+                    initialMonth: _otherDate == null
+                        ? new DateTime.now().month
+                        : _otherDate.month,
+                    initialDate: _otherDate == null
+                        ? new DateTime.now().day
+                        : _otherDate.day,
+                    onChanged: (year, month, date) {},
+                    onConfirm: (year, month, date) {
+                      setState(() {
+                        _otherDate = new DateTime(year, month, date);
+                      });
+                    },
+                  );
+                },
+              )
             ],
-            style: const TextStyle(fontSize: 28.0, color: Colors.black87),
           ),
           new GridView.count(
             shrinkWrap: true,
