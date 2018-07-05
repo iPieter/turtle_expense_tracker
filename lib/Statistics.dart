@@ -9,13 +9,24 @@ class Statistics {
     _db = new ApplicationDatabase();
   }
 
-  sumForCategory(DateTime start, DateTime end, String category) async {
+  Future<double> sumForCategory(
+      DateTime start, DateTime end, String category) async {
     var expenses = await _db.getExpensesInPeriod(start, end);
 
-    return expenses
+    Iterable mapping = expenses
         .where((expense) => expense.category == category)
-        .map((expense) => expense.amount)
-        .reduce((a, b) => a + b);
+        .map((expense) => expense.amount);
+    if (mapping.length > 1) {
+      return mapping.reduce((a, b) => a + b);
+    } else if (mapping.length == 1) {
+      return new Future(() {
+        return mapping.first;
+      });
+    } else {
+      return new Future(() {
+        return 0.0;
+      });
+    }
   }
 
   Future<double> sumForAll(DateTime start, DateTime end) async {
@@ -78,6 +89,22 @@ class Statistics {
     }
     return data;
   }
+
+  Future<List<TimeSeriesOrdinal>> getCategoricalSumForWeeks(
+      int numberOfWeeks, String category) async {
+    List<TimeSeriesOrdinal> data = <TimeSeriesOrdinal>[];
+
+    DateTime d = new DateTime.now();
+    for (var i = 7 * numberOfWeeks; i >= 0; i--) {
+      TimeSeriesOrdinal o = new TimeSeriesOrdinal(
+          d.subtract(const Duration(days: 1)),
+          await sumForCategory(
+              d.subtract(const Duration(days: 1)), d, category));
+      data.add(o);
+      d = d.subtract(const Duration(days: 1));
+    }
+    return data;
+  }
 }
 
 class Ordinal {
@@ -85,4 +112,11 @@ class Ordinal {
   final double y;
 
   Ordinal(this.x, this.y);
+}
+
+class TimeSeriesOrdinal {
+  final DateTime x;
+  final double y;
+
+  TimeSeriesOrdinal(this.x, this.y);
 }
