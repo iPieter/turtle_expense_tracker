@@ -34,30 +34,38 @@ class Statistics {
     var lastWeekStart =
         now.subtract(new Duration(days: (now.weekday + 6 + 7 * (n - 1))));
 
-    return [lastWeekStart, lastWeekStart.add(new Duration(days: 7))];
+    lastWeekStart = new DateTime( lastWeekStart.year, lastWeekStart.month, lastWeekStart.day );
+
+    return [lastWeekStart, lastWeekStart.add(new Duration(days: 7)).subtract(new Duration(seconds: 1)) ];
   }
 
   Future<List<Tuple3<String, double, double>>> getWeekData() async {
     var thisWeekDates = getWeekDates(0);
     var lastWeekDates = getWeekDates(1);
 
-    List<Tuple2<String,double>> thisWeek = await _db.getCategoryCount(thisWeekDates[0], thisWeekDates[1]);
-    List<Tuple2<String,double>> lastWeek = await _db.getCategoryCount(lastWeekDates[0], lastWeekDates[1]);
+    List<Tuple2<String, double>> thisWeek =
+        await _db.getCategoryCount(thisWeekDates[0], thisWeekDates[1]);
+    List<Tuple2<String, double>> lastWeek =
+        await _db.getCategoryCount(lastWeekDates[0], lastWeekDates[1]);
 
-    var result = new List<Tuple3<String,double,double>>();
+    var result = new List<Tuple3<String, double, double>>();
 
-    for( var expense in thisWeek ) {
-      var catLastWeek = lastWeek.firstWhere((e) => e.item1 == expense.item1, orElse : () => null );
-      if( catLastWeek != null ) {
-        result.add(new Tuple3(expense.item1, expense.item2, (expense.item2 - catLastWeek.item2) / expense.item2 * 100.0 ));
+    for (var expense in thisWeek) {
+      var catLastWeek = lastWeek.firstWhere((e) => e.item1 == expense.item1,
+          orElse: () => null);
+      if (catLastWeek != null) {
+        result.add(new Tuple3(expense.item1, expense.item2,
+            expense.item2 / catLastWeek.item2 * 100.0 - 100.0));
       } else {
-        result.add(new Tuple3(expense.item1, expense.item2, 100.0 ));
+        result.add(new Tuple3(expense.item1, expense.item2, 100.0));
       }
     }
 
-    result.sort((e1,e2) => (e1.item2 - e2.item2).toInt() );
+    result.sort((e1, e2) => (e1.item2 - e2.item2).toInt());
 
-    return result.reversed.toList();
+    return result.reversed
+        .toList()
+        .sublist(0, result.length > 5 ? 5 : result.length);
   }
 
   Future<List<Ordinal>> getSumForWeeks(int numberOfWeeks) async {

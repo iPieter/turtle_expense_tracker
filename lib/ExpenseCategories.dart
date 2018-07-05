@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:currency_input_formatter/currency_input_formatter.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:turtle/CategoryTile.dart';
 import 'ApplicationDatabase.dart';
 import 'InputExpense.dart';
 import 'Expense.dart';
@@ -8,6 +8,7 @@ import 'ExpensesList.dart';
 import 'ExpensesChart.dart';
 import 'package:tuple/tuple.dart';
 import 'Statistics.dart';
+import 'package:share/share.dart';
 
 class ExpenseCategories extends StatefulWidget {
   @override
@@ -16,9 +17,6 @@ class ExpenseCategories extends StatefulWidget {
 
 class ExpenseCategoriesState extends State<ExpenseCategories> {
   static var _expenses = <Expense>[];
-  final _biggerFont = const TextStyle(
-    fontSize: 18.0,
-  );
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
@@ -27,7 +25,7 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
   static final stats = new Statistics();
 
   Widget _buildList() {
-    return new FutureBuilder<List<Tuple3<String, double,double>>>(
+    return new FutureBuilder<List<Tuple3<String, double, double>>>(
         future: stats.getWeekData(),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
@@ -44,42 +42,7 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
                     itemBuilder: (context, index) {
                       if (index < snapshot.data.length) {
                         return new Card(
-                            child: new ListTile(
-                                leading: const Icon(Icons.category),
-                                title: new Text(snapshot.data[index].item1),
-                                trailing: new SizedBox(
-                                  width: 100.0,
-                                  child: new Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: <Widget>[
-                                      
-                                      new Column(
-                                        crossAxisAlignment: CrossAxisAlignment.end,
-                                        children: <Widget>[
-                                          new Text(
-                                            " € " +
-                                                snapshot.data[index].item2
-                                                    .toStringAsFixed(2) +
-                                                " ",
-                                            style: TextStyle(
-                                                color: (snapshot.data[index].item3 > 0) ? Colors.red : Colors.green),
-                                          ),
-                                          
-                                          new Text(
-                                            (snapshot.data[index].item3 > 0 ? "+" : "") +
-                                                snapshot.data[index].item3
-                                                    .toStringAsFixed(0) + " %",
-                                            style: TextStyle(
-                                                color: (snapshot.data[index].item3 > 0) ? Colors.red : Colors.green,
-                                                fontWeight: FontWeight.w100,
-                                                fontSize: 10.0),
-                                          ),
-                                        ],
-                                      ),
-                                      //const Icon(Icons.chevron_right),
-                                    ],
-                                  ),
-                                )));
+                            child: new CategoryTile(snapshot.data[index]));
                       } else if (snapshot.data.length == 0 && index == 0) {
                         return new Text("no entries");
                       }
@@ -120,6 +83,26 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
             ),
             new Divider(),
             new ListTile(
+              leading: const Icon(Icons.bookmark_border),
+              title: new Text('Share log file'),
+              onTap: () async {
+                final RenderBox box = context.findRenderObject();
+                final directory = await getApplicationDocumentsDirectory();
+
+                Share
+                    .file(
+                        mimeType: ShareType.TYPE_FILE,
+                        title: 'Log file',
+                        path: '${directory.path}/finer.log',
+                        text: 'Share the log file')
+                    .share(
+                        sharePositionOrigin:
+                            box.localToGlobal(Offset.zero) & box.size);
+
+                Navigator.pop(context);
+              },
+            ),
+            new ListTile(
               leading: const Icon(Icons.delete_forever),
               title: new Text('Clear Database'),
               onTap: () {
@@ -131,11 +114,6 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
             ),
           ],
         ),
-      ),
-      floatingActionButton: new FloatingActionButton(
-        child: new Image.network(
-            "https://emoji.slack-edge.com/T7738P6P3/bob/0dbb39dcbacebe4e.png"),
-        onPressed: () {},
       ),
       appBar: new AppBar(
         title: new Text('Expenses'),

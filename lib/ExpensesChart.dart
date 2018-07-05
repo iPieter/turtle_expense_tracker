@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
-import 'Expense.dart';
 import 'Statistics.dart';
 
 class PatternForwardHatchBarChart extends StatelessWidget {

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:currency_input_formatter/currency_input_formatter.dart';
 import 'ApplicationDatabase.dart';
 import 'Expense.dart';
 import 'InputExpense.dart';
-import 'package:intl/intl.dart';
 import 'DateFormatter.dart';
 
 class ExpensesList extends StatefulWidget {
@@ -13,11 +11,6 @@ class ExpensesList extends StatefulWidget {
 
 class _ExpensesListState extends State<ExpensesList> {
   static var _expenses = <Expense>[];
-  final _biggerFont = const TextStyle(
-    fontSize: 18.0,
-  );
-
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   static final _db = new ApplicationDatabase();
 
@@ -65,7 +58,9 @@ class _ExpensesListState extends State<ExpensesList> {
             ),
       subtitle: expense.when != null && expense.category != null
           ? Text(
-              expense.category + " • " + DateFormatter.prettyPrint(expense.when),
+              expense.category +
+                  " • " +
+                  DateFormatter.prettyPrint(expense.when),
               //style: _biggerFont,
             )
           : Text(
@@ -73,13 +68,12 @@ class _ExpensesListState extends State<ExpensesList> {
               style: const TextStyle(color: Colors.redAccent),
             ),
       //subtitle: new Text("test"),
-      
+
       trailing: new Text(
         "€ " + expense.amount.toStringAsFixed(2),
         style: new TextStyle(
             fontSize: 18.0,
-            color: expense.amount > 0 ? Colors.red : Colors.green
-            ),
+            color: expense.amount > 0 ? Colors.red : Colors.green),
       ),
       onTap: () {
         setState(() {});
@@ -89,7 +83,7 @@ class _ExpensesListState extends State<ExpensesList> {
 
   @override
   Widget build(BuildContext context) {
-         return new Scaffold(
+    return new Scaffold(
       appBar: new AppBar(
         title: new Text('Expenses'),
         actions: <Widget>[
@@ -100,7 +94,6 @@ class _ExpensesListState extends State<ExpensesList> {
                     builder: (_) => new InputExpense(_expenses)));
               }),
         ],
-        
       ),
       body: _buildList(),
     );
