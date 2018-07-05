@@ -13,6 +13,9 @@ class ApplicationDatabase {
 
   db_utils.Database _db;
   Mutex mutex;
+  List<Expense> localExpenses;
+  DateTime startDate;
+  DateTime endDate;
 
   factory ApplicationDatabase() {
     return _singleton;
@@ -86,25 +89,46 @@ class ApplicationDatabase {
             ID,
             e.category
           ]);
+      e.id = id;
+      localExpenses.add(e);
       print("Created Expense record: $id");
     });
   }
 
   getExpensesInPeriod(DateTime start, DateTime end) async {
     print("Fetching expenses for period");
-    var db = await _getDB();
 
-    List<Map> expenses = await db.rawQuery(
-        "SELECT * FROM Expense WHERE date >= ? AND date <= ?",
-        [start.millisecondsSinceEpoch, end.millisecondsSinceEpoch]);
-    List<Map> locations = await db.rawQuery("SELECT * FROM Location");
+    print(start);
+    print(end);
 
-    print("Building list");
+    print(startDate);
+    print(endDate);
 
-    return _buildList(expenses, locations);
+    if( start.isBefore(startDate) || end.isAfter(endDate) ) {
+      print("Using DB");
+      var db = await _getDB();
+
+      List<Map> expenses = await db.rawQuery(
+          "SELECT * FROM Expense WHERE date >= ? AND date <= ?",
+          [start.millisecondsSinceEpoch, end.millisecondsSinceEpoch]);
+      List<Map> locations = await db.rawQuery("SELECT * FROM Location");
+
+      print("Building list");
+
+      startDate = start;
+      endDate = end;
+
+      localExpenses = _buildList(expenses, locations).reversed.toList();
+
+      return localExpenses;
+    }
+    print("Using local cache");
+
+    return localExpenses.where((e) => e.when.isAfter(start) && e.when.isBefore(end) );
   }
 
-  _buildList(List<Map> expenses, List<Map> locations) {
+  List<Expense> _buildList(List<Map> expenses, List<Map> locations) {
+
     List<Expense> result = new List();
 
     if( expenses == null || locations == null )
@@ -115,6 +139,7 @@ class ApplicationDatabase {
       if(loc == null)
         continue;
       Expense expense = new Expense(
+          e["id"],
           e["amount"],
           e["name"],
           new DateTime.fromMillisecondsSinceEpoch(e["date"]),
@@ -135,26 +160,43 @@ class ApplicationDatabase {
 
     print("Building list");
 
-    return _buildList(expenses, locations).reversed.toList();
+    localExpenses = _buildList(expenses, locations).reversed.toList();
+    startDate = new DateTime.now();
+    endDate = localExpenses.reduce( (a,b) => a.when.isBefore(b.when) ? a : b ).when;
+
+    return localExpenses;
   }
 
   Future<List<Tuple2<String,double>>> getCategoryCount(DateTime start, DateTime end) async {
       print("Fetching categories");
-      var db = await _getDB();
+      if( start.isBefore(startDate) || end.isAfter(endDate) ){
+        print("Using DB");
+        var db = await _getDB();
 
-      var result = new List<Tuple2<String, double>>();
-      List<Map> categoryCount =  await db.rawQuery("SELECT category, amount, SUM(amount) FROM Expense WHERE date >= ? AND date <= ? GROUP BY category",
-      [start.millisecondsSinceEpoch, end.millisecondsSinceEpoch]);
+        var result = new List<Tuple2<String, double>>();
+        List<Map> categoryCount =  await db.rawQuery("SELECT category, amount, SUM(amount) FROM Expense WHERE date >= ? AND date <= ? GROUP BY category",
+        [start.millisecondsSinceEpoch, end.millisecondsSinceEpoch]);
 
-      for( var entry in categoryCount ) {
-        result.add(new Tuple2(entry["category"], entry["SUM(amount)"]));
+        for( var entry in categoryCount ) {
+          result.add(new Tuple2(entry["category"], entry["SUM(amount)"]));
+        }
+
+        return result;
       }
+      print("Using cache");
+      
+      var list = localExpenses.where( (e) => e.when.isAfter(start) && e.when.isBefore(end) );
 
-      return result;
+      List<String> cats = list.map( (e) => e.category );
+      cats = cats.where( (e) => cats.indexOf(e) != -1 );
+      return cats.map( (e) => new Tuple2(e, list.fold(0.0, (prev,cur) => cur.category == e ? cur.amount : 0 ) ) );
   }
 
   ApplicationDatabase._internal() {
     _db = null;
     mutex = new Mutex();
+    localExpenses = new List();
+    startDate = new DateTime.now();
+    endDate = new DateTime.now();
   }
 }
