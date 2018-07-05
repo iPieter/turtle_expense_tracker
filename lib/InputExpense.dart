@@ -95,7 +95,8 @@ class InputExpenseState extends State<InputExpense> {
             )
           ],
         ),
-        body: new Column(children: <Widget>[
+        body: new SingleChildScrollView(
+            child: new Column(children: <Widget>[
           new Row(
             children: <Widget>[
               new Flexible(
@@ -178,6 +179,6 @@ class InputExpenseState extends State<InputExpense> {
               leading: const Icon(Icons.label),
             ),
           ),
-        ]));
+        ])));
   }
 }

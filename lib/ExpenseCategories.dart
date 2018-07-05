@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:turtle/CategoryTile.dart';
 import 'ApplicationDatabase.dart';
 import 'InputExpense.dart';
 import 'Expense.dart';
@@ -41,52 +42,7 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
                     itemBuilder: (context, index) {
                       if (index < snapshot.data.length) {
                         return new Card(
-                            child: new ListTile(
-                                leading: const Icon(Icons.category),
-                                title: new Text(snapshot.data[index].item1),
-                                trailing: new SizedBox(
-                                  width: 100.0,
-                                  child: new Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: <Widget>[
-                                      new Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.end,
-                                        children: <Widget>[
-                                          new Text(
-                                            " € " +
-                                                snapshot.data[index].item2
-                                                    .toStringAsFixed(2) +
-                                                " ",
-                                            style: TextStyle(
-                                                color: (snapshot
-                                                            .data[index].item3 >
-                                                        0)
-                                                    ? Colors.red
-                                                    : Colors.green),
-                                          ),
-                                          new Text(
-                                            (snapshot.data[index].item3 > 0
-                                                    ? "+"
-                                                    : "") +
-                                                snapshot.data[index].item3
-                                                    .toStringAsFixed(0) +
-                                                " %",
-                                            style: TextStyle(
-                                                color: (snapshot
-                                                            .data[index].item3 >
-                                                        0)
-                                                    ? Colors.red
-                                                    : Colors.green,
-                                                fontWeight: FontWeight.w100,
-                                                fontSize: 10.0),
-                                          ),
-                                        ],
-                                      ),
-                                      //const Icon(Icons.chevron_right),
-                                    ],
-                                  ),
-                                )));
+                            child: new CategoryTile(snapshot.data[index]));
                       } else if (snapshot.data.length == 0 && index == 0) {
                         return new Text("no entries");
                       }
