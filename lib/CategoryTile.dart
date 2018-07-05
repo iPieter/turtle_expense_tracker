@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tuple/tuple.dart';
+import 'package:turtle/CategoryDetail.dart';
 
 class CategoryTile extends StatefulWidget {
   final Tuple3 _data;
@@ -49,10 +50,8 @@ class _CategoryTileState extends State<CategoryTile> {
         ),
       ),
       onTap: () {
-        Navigator.of(context).push(new MaterialPageRoute(
-            builder: (_) => new Scaffold(
-                  body: new Text(_data.item1),
-                )));
+        Navigator.of(context).push(
+            new MaterialPageRoute(builder: (_) => new CategoryDetail(_data)));
       },
     );
   }
