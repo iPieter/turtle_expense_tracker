@@ -2,19 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:tuple/tuple.dart';
 import 'package:turtle/CategoryDetail.dart';
 
-class CategoryTile extends StatefulWidget {
+class CategoryTile extends StatelessWidget {
   final Tuple3 _data;
 
   const CategoryTile(this._data);
-
-  @override
-  _CategoryTileState createState() => _CategoryTileState(_data);
-}
-
-class _CategoryTileState extends State<CategoryTile> {
-  final Tuple3 _data;
-
-  _CategoryTileState(this._data);
 
   @override
   Widget build(BuildContext context) {

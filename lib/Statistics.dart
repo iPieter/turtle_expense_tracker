@@ -1,9 +1,12 @@
+import 'package:logging/logging.dart';
+
 import 'ApplicationDatabase.dart';
 import 'dart:async';
 import 'package:tuple/tuple.dart';
 
 class Statistics {
   ApplicationDatabase _db;
+  final Logger _log = new Logger('Statistics');
 
   Statistics() {
     _db = new ApplicationDatabase();
@@ -45,9 +48,15 @@ class Statistics {
     var lastWeekStart =
         now.subtract(new Duration(days: (now.weekday + 6 + 7 * (n - 1))));
 
-    lastWeekStart = new DateTime( lastWeekStart.year, lastWeekStart.month, lastWeekStart.day );
+    lastWeekStart = new DateTime(
+        lastWeekStart.year, lastWeekStart.month, lastWeekStart.day);
 
-    return [lastWeekStart, lastWeekStart.add(new Duration(days: 7)).subtract(new Duration(seconds: 1)) ];
+    return [
+      lastWeekStart,
+      lastWeekStart
+          .add(const Duration(days: 7))
+          .subtract(const Duration(seconds: 1))
+    ];
   }
 
   Future<List<Tuple3<String, double, double>>> getWeekData() async {
@@ -62,6 +71,7 @@ class Statistics {
     var result = new List<Tuple3<String, double, double>>();
 
     for (var expense in thisWeek) {
+      _log.finest(expense);
       var catLastWeek = lastWeek.firstWhere((e) => e.item1 == expense.item1,
           orElse: () => null);
       if (catLastWeek != null) {
