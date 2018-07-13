@@ -109,7 +109,7 @@ class ApplicationDatabase {
     _log.finest(startDate);
     _log.finest(endDate);
 
-    if (true) {
+    if (invalidated) {
       _log.finest("Using DB");
       var db = await _getDB();
 
@@ -181,7 +181,7 @@ class ApplicationDatabase {
   Future<List<Tuple2<String, double>>> getCategoryCount(
       DateTime start, DateTime end) async {
     _log.finest("Fetching categories");
-    if (true) {
+    if (invalidated) {
       _log.finest("Using DB");
       _log.finest("Fetching from $start to $end.");
       var db = await _getDB();
