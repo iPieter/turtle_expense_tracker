@@ -77,8 +77,8 @@ class InputExpenseState extends State<InputExpense> {
                 if (_category != null) {
                   ApplicationDatabase db = new ApplicationDatabase();
                   try {
-
-                    final expense = new Expense(-1,
+                    final expense = new Expense(
+                        -1,
                         double
                             .parse(inputController.text.replaceFirst(",", ".")),
                         titleInputController.text.isEmpty
@@ -88,6 +88,8 @@ class InputExpenseState extends State<InputExpense> {
                         new Location("Paul's bakery", 1.0, 2.0),
                         _category);
                     await db.insertExpense(expense);
+
+                    setState(() {});
 
                     Navigator.pop(context);
                   } catch (e) {}
@@ -113,7 +115,7 @@ class InputExpenseState extends State<InputExpense> {
                   ),
                   inputFormatters: <TextInputFormatter>[
                     new CurrencyInputFormatter(
-                        allowSubdivisions: true, subdivisionMarker: ","),
+                        allowSubdivisions: true, subdivisionMarker: "."),
                   ],
                   style: const TextStyle(fontSize: 28.0, color: Colors.black87),
                 ),

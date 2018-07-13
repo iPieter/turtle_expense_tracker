@@ -84,13 +84,7 @@ class ApplicationDatabase {
     await db.transaction((txn) async {
       int id = await txn.rawInsert(
           "INSERT INTO Expense(amount,name,date,location,category) VALUES(?,?,?,?,?)",
-          [
-            e.amount,
-            e.name,
-            e.when.millisecondsSinceEpoch,
-            ID,
-            e.category
-          ]);
+          [e.amount, e.name, e.when.millisecondsSinceEpoch, ID, e.category]);
       e.id = id;
       localExpenses.add(e);
       _log.finest("Created Expense record: $id");
@@ -108,7 +102,7 @@ class ApplicationDatabase {
     _log.finest(startDate);
     _log.finest(endDate);
 
-    if( start.isBefore(startDate) || end.isAfter(endDate) ) {
+    if (start.isBefore(startDate) || end.isAfter(endDate)) {
       _log.finest("Using DB");
       var db = await _getDB();
 
@@ -121,27 +115,26 @@ class ApplicationDatabase {
 
       var expensesInPeriod = _buildList(expenses, locations).reversed.toList();
 
-      expensesInPeriod.forEach( (e) {
-        if( e.when.isBefore(startDate) || e.when.isAfter(endDate)){
+      expensesInPeriod.forEach((e) {
+        if (e.when.isBefore(startDate) || e.when.isAfter(endDate)) {
           localExpenses.add(e);
         }
       });
 
-      if( start.isBefore(startDate))
-        startDate = start;
+      if (start.isBefore(startDate)) startDate = start;
 
-      if( end.isAfter(endDate))
-        endDate = end;
+      if (end.isAfter(endDate)) endDate = end;
 
       return expensesInPeriod;
     }
     _log.finest("Using local cache");
 
-    return localExpenses.where((e) => e.when.isAfter(start) && e.when.isBefore(end) ).toList();
+    return localExpenses
+        .where((e) => e.when.isAfter(start) && e.when.isBefore(end))
+        .toList();
   }
 
   List<Expense> _buildList(List<Map> expenses, List<Map> locations) {
-
     List<Expense> result = new List();
 
     if (expenses == null || locations == null) return result;
@@ -172,39 +165,56 @@ class ApplicationDatabase {
     _log.finest("Building list");
 
     localExpenses = _buildList(expenses, locations).reversed.toList();
-    startDate = localExpenses.reduce( (a,b) => a.when.isBefore(b.when) ? a : b ).when;
-    endDate = new DateTime.now();
 
-    _log.fine("Current:");
-    _log.finest(startDate);
-    _log.finest(endDate);
+    if (localExpenses.length > 0) {
+      startDate =
+          localExpenses.reduce((a, b) => a.when.isBefore(b.when) ? a : b).when;
+      endDate = new DateTime.now();
+
+      _log.fine("Current:");
+      _log.finest(startDate);
+      _log.finest(endDate);
+    }
 
     return localExpenses;
   }
 
-  Future<List<Tuple2<String,double>>> getCategoryCount(DateTime start, DateTime end) async {
-      _log.finest("Fetching categories");
-      if( start.isBefore(startDate) || end.isAfter(endDate) ){
-        _log.finest("Using DB");
-        var db = await _getDB();
+  Future<List<Tuple2<String, double>>> getCategoryCount(
+      DateTime start, DateTime end) async {
+    _log.finest("Fetching categories");
+    if (start.isBefore(startDate) || end.isAfter(endDate)) {
+      _log.finest("Using DB");
+      var db = await _getDB();
 
-        var result = new List<Tuple2<String, double>>();
-        List<Map> categoryCount =  await db.rawQuery("SELECT category, amount, SUM(amount) FROM Expense WHERE date >= ? AND date <= ? GROUP BY category",
-        [start.millisecondsSinceEpoch, end.millisecondsSinceEpoch]);
+      var result = new List<Tuple2<String, double>>();
+      List<Map> categoryCount = await db.rawQuery(
+          "SELECT category, amount, SUM(amount) FROM Expense WHERE date >= ? AND date <= ? GROUP BY category",
+          [start.millisecondsSinceEpoch, end.millisecondsSinceEpoch]);
 
-        for( var entry in categoryCount ) {
-          result.add(new Tuple2(entry["category"], entry["SUM(amount)"]));
-        }
-
-        return result;
+      for (var entry in categoryCount) {
+        result.add(new Tuple2(entry["category"], entry["SUM(amount)"]));
       }
-      _log.finest("Using cache");
-      
-      var list = localExpenses.where( (e) => e.when.isAfter(start) && e.when.isBefore(end) );
 
-      List<String> cats = list.map( (e) => e.category ).toList();
-      List<String> uniqueCats = new Set<String>.from(cats).toList();
-      return uniqueCats.map( (e) => new Tuple2<String,double>(e, list.fold(0.0, (prev,cur) => cur.category == e ? cur.amount : 0.0 ) ) ).toList();
+      return result;
+    }
+    _log.finest("Using cache");
+
+    var list = localExpenses
+        .where((e) => e.when.isAfter(start) && e.when.isBefore(end));
+
+    _log.finest(list);
+
+    List<String> cats = list.map((e) => e.category).toList();
+    List<String> uniqueCats = new Set<String>.from(cats).toList();
+
+    _log.finest(uniqueCats);
+
+    return uniqueCats
+        .map((e) => new Tuple2<String, double>(
+            e,
+            list.fold(
+                0.0, (prev, cur) => cur.category == e ? cur.amount : 0.0)))
+        .toList();
   }
 
   ApplicationDatabase._internal() {
