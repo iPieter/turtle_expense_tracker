@@ -78,7 +78,7 @@ class Statistics {
         result.add(new Tuple3(expense.item1, expense.item2,
             expense.item2 / catLastWeek.item2 * 100.0 - 100.0));
       } else {
-        result.add(new Tuple3(expense.item1, expense.item2, 100.0));
+        result.add(new Tuple3(expense.item1, expense.item2, double.infinity));
       }
     }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:turtle/AboutPage.dart';
 import 'package:turtle/CategoryTile.dart';
@@ -43,6 +44,7 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
                     itemBuilder: (context, index) {
                       if (index < snapshot.data.length) {
                         return new Card(
+                            elevation: 0.0,
                             child: new CategoryTile(snapshot.data[index]));
                       } else if (snapshot.data.length == 0 && index == 0) {
                         return new Text("no entries");
@@ -55,6 +57,7 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
+      backgroundColor: Colors.white,
       key: _scaffoldKey,
       drawer: new Drawer(
         // Add a ListView to the drawer. This ensures the user can scroll
@@ -125,6 +128,7 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
         ),
       ),
       appBar: new AppBar(
+        elevation: 0.0,
         title: new Text('Expenses'),
         actions: <Widget>[
           new IconButton(
@@ -147,6 +151,28 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
             flex: 2,
             child: _buildList(),
           ),
+        ],
+      ),
+      bottomNavigationBar: new BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        fixedColor: Colors.blue,
+        currentIndex: 1,
+        onTap: (i) {
+          print(i);
+        },
+        items: [
+          new BottomNavigationBarItem(
+              icon: const Icon(Icons.list), title: const Text("Expenses")),
+          new BottomNavigationBarItem(
+              icon: const Icon(Icons.category),
+              title: const Text("Categories")),
+          new BottomNavigationBarItem(
+              icon: const Icon(
+                Icons.add,
+              ),
+              title: const Text("Add")),
+          new BottomNavigationBarItem(
+              icon: const Icon(Icons.settings), title: const Text("Settings")),
         ],
       ),
     );

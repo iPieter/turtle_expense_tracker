@@ -187,7 +187,7 @@ class ApplicationDatabase {
   Future<List<Tuple2<String, double>>> getCategoryCount(
       DateTime start, DateTime end) async {
     _log.finest("Fetching categories");
-    if (start.isBefore(startDate) || end.isAfter(endDate) || true) {
+    if (start.isBefore(startDate) || end.isAfter(endDate)) {
       _log.finest("Using DB");
       var db = await _getDB();
 
@@ -217,8 +217,8 @@ class ApplicationDatabase {
     return uniqueCats
         .map((e) => new Tuple2<String, double>(
             e,
-            list.fold(
-                0.0, (prev, cur) => cur.category == e ? cur.amount : 0.0)))
+            list.fold(0.0,
+                (prev, cur) => prev + (cur.category == e ? cur.amount : 0.0))))
         .toList();
   }
 

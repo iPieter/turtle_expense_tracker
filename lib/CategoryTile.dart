@@ -10,8 +10,11 @@ class CategoryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: const Icon(Icons.category),
-      title: new Text(_data.item1),
+      //leading: const Icon(Icons.category),
+      title: new Text(
+        _data.item1.toUpperCase(),
+        style: const TextStyle(color: Colors.blueGrey, letterSpacing: 0.4),
+      ),
       trailing: new SizedBox(
         width: 100.0,
         child: new Row(
@@ -23,21 +26,22 @@ class CategoryTile extends StatelessWidget {
                 new Text(
                   " € " + _data.item2.toStringAsFixed(2) + " ",
                   style: TextStyle(
-                      color: (_data.item3 > 0) ? Colors.red : Colors.green),
-                ),
-                new Text(
-                  (_data.item3 > 0 ? "+" : "") +
-                      _data.item3.toStringAsFixed(0) +
-                      " %",
-                  style: TextStyle(
                       color: (_data.item3 > 0) ? Colors.red : Colors.green,
-                      fontWeight: FontWeight.w100,
-                      fontSize: 10.0),
+                      fontSize: 19.0,
+                      fontWeight: FontWeight.w100),
                 ),
               ],
             ),
             //const Icon(Icons.chevron_right),
           ],
+        ),
+      ),
+      subtitle: new Text(
+        getSubtitle(_data.item3),
+        style: TextStyle(
+          color: Colors.grey,
+          //color: (_data.item3 > 0) ? Colors.red : Colors.green,
+          fontWeight: FontWeight.w100,
         ),
       ),
       onTap: () {
@@ -46,4 +50,16 @@ class CategoryTile extends StatelessWidget {
       },
     );
   }
+}
+
+String getSubtitle(double percentage) {
+  final pr = percentage.abs().toStringAsFixed(0);
+  if (percentage == double.infinity)
+    return "";
+  else if (percentage > 0.1)
+    return "$pr % meer uitgegeven";
+  else if (percentage < -0.1)
+    return "$pr % bespaard";
+  else
+    return "ongeveer gelijk";
 }
