@@ -19,13 +19,12 @@ class ApplicationDatabase {
   List<Expense> localExpenses;
   DateTime startDate;
   DateTime endDate;
-  bool invalidated = true;
 
   factory ApplicationDatabase() {
     return _singleton;
   }
 
-  Future<db_utils.Database> _getDB() async {
+  _getDB() async {
     await mutex.acquire();
     if (_db == null) {
       Directory documentsDirectory = await getApplicationDocumentsDirectory();
@@ -55,14 +54,11 @@ class ApplicationDatabase {
 
     await db.rawQuery("DELETE FROM Location");
     await db.rawQuery("DELETE FROM Expense");
-
-    invalidated = true;
   }
 
   insertExpense(Expense e) async {
     _log.finest("Inserting expense");
     var db = await _getDB();
-    await mutex.acquire();
     _log.finest("Got DB handle");
 
     List<Map> loc = await db.rawQuery(
@@ -92,10 +88,7 @@ class ApplicationDatabase {
       e.id = id;
       localExpenses.add(e);
       _log.finest("Created Expense record: $id");
-      invalidated = true;
     });
-
-    mutex.release();
   }
 
   getExpensesInPeriod(DateTime start, DateTime end) async {
@@ -109,7 +102,7 @@ class ApplicationDatabase {
     _log.finest(startDate);
     _log.finest(endDate);
 
-    if (invalidated) {
+    if (start.isBefore(startDate) || end.isAfter(endDate)) {
       _log.finest("Using DB");
       var db = await _getDB();
 
@@ -120,9 +113,19 @@ class ApplicationDatabase {
 
       _log.finest("Building list");
 
-      localExpenses = _buildList(expenses, locations).reversed.toList();
+      var expensesInPeriod = _buildList(expenses, locations).reversed.toList();
 
-      return localExpenses;
+      expensesInPeriod.forEach((e) {
+        if (e.when.isBefore(startDate) || e.when.isAfter(endDate)) {
+          localExpenses.add(e);
+        }
+      });
+
+      if (start.isBefore(startDate)) startDate = start;
+
+      if (end.isAfter(endDate)) endDate = end;
+
+      return expensesInPeriod;
     }
     _log.finest("Using local cache");
 
@@ -171,8 +174,6 @@ class ApplicationDatabase {
       _log.fine("Current:");
       _log.finest(startDate);
       _log.finest(endDate);
-
-      invalidated = false;
     }
 
     return localExpenses;
@@ -181,9 +182,8 @@ class ApplicationDatabase {
   Future<List<Tuple2<String, double>>> getCategoryCount(
       DateTime start, DateTime end) async {
     _log.finest("Fetching categories");
-    if (invalidated) {
+    if (start.isBefore(startDate) || end.isAfter(endDate)) {
       _log.finest("Using DB");
-      _log.finest("Fetching from $start to $end.");
       var db = await _getDB();
 
       var result = new List<Tuple2<String, double>>();
@@ -192,12 +192,9 @@ class ApplicationDatabase {
           [start.millisecondsSinceEpoch, end.millisecondsSinceEpoch]);
 
       for (var entry in categoryCount) {
-        _log.finest(entry);
         result.add(new Tuple2(entry["category"], entry["SUM(amount)"]));
       }
 
-      invalidated = false;
-      _log.finest(result);
       return result;
     }
     _log.finest("Using cache");
