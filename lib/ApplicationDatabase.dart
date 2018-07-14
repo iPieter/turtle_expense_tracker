@@ -59,6 +59,7 @@ class ApplicationDatabase {
   insertExpense(Expense e) async {
     _log.finest("Inserting expense");
     var db = await _getDB();
+    await mutex.acquire();
     _log.finest("Got DB handle");
 
     List<Map> loc = await db.rawQuery(
@@ -89,6 +90,8 @@ class ApplicationDatabase {
       localExpenses.add(e);
       _log.finest("Created Expense record: $id");
     });
+
+    mutex.release();
   }
 
   getExpensesInPeriod(DateTime start, DateTime end) async {
@@ -116,7 +119,9 @@ class ApplicationDatabase {
       var expensesInPeriod = _buildList(expenses, locations).reversed.toList();
 
       expensesInPeriod.forEach((e) {
-        if (e.when.isBefore(startDate) || e.when.isAfter(endDate)) {
+        _log.finest(e);
+        if (e.when.isAfter(startDate) || e.when.isBefore(endDate)) {
+          _log.finest("added");
           localExpenses.add(e);
         }
       });
@@ -182,7 +187,7 @@ class ApplicationDatabase {
   Future<List<Tuple2<String, double>>> getCategoryCount(
       DateTime start, DateTime end) async {
     _log.finest("Fetching categories");
-    if (start.isBefore(startDate) || end.isAfter(endDate)) {
+    if (start.isBefore(startDate) || end.isAfter(endDate) || true) {
       _log.finest("Using DB");
       var db = await _getDB();
 

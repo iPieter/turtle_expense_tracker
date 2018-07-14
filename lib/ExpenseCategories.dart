@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:turtle/AboutPage.dart';
 import 'package:turtle/CategoryTile.dart';
 import 'ApplicationDatabase.dart';
 import 'InputExpense.dart';
@@ -110,6 +111,14 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
                   _db.deleteDatabase();
                 });
                 Navigator.pop(context);
+              },
+            ),
+            new ListTile(
+              leading: const Icon(Icons.info),
+              title: new Text('About'),
+              onTap: () {
+                Navigator.of(context).push(
+                    new MaterialPageRoute(builder: (_) => new AboutPage()));
               },
             ),
           ],
