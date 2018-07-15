@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:turtle/AboutPage.dart';
+import 'package:turtle/SettingsPage.dart';
 import 'package:turtle/AchievementsList.dart';
 import 'package:turtle/Expense.dart';
 import 'package:turtle/ExpenseCategories.dart';
@@ -44,7 +44,7 @@ class _HomepageState extends State<Homepage> {
       case 2:
         return new AchievementsList();
       case 3:
-        return new AboutPage();
+        return new SettingsPage();
       default:
         return new Container();
     }
