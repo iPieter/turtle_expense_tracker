@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'ApplicationDatabase.dart';
 import 'Expense.dart';
-import 'InputExpense.dart';
 import 'DateFormatter.dart';
 
 class ExpensesList extends StatefulWidget {

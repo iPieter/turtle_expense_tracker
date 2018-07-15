@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:turtle/AboutPage.dart';
 import 'package:turtle/CategoryTile.dart';
 import 'ApplicationDatabase.dart';
-import 'InputExpense.dart';
 import 'Expense.dart';
-import 'ExpensesList.dart';
 import 'ExpensesChart.dart';
 import 'package:tuple/tuple.dart';
 import 'Statistics.dart';
-import 'package:share/share.dart';
 
 class ExpenseCategories extends StatefulWidget {
   @override

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:turtle/AboutPage.dart';
+import 'package:turtle/AchievementsList.dart';
 import 'package:turtle/Expense.dart';
 import 'package:turtle/ExpenseCategories.dart';
 import 'package:turtle/ExpensesList.dart';
@@ -23,13 +24,12 @@ class _HomepageState extends State<Homepage> {
     switch (index) {
       case 0:
         return "Expenses";
-
       case 1:
         return "Categories";
-
+      case 2:
+        return "Achievements";
       case 3:
         return "Settings";
-
       default:
         return "";
     }
@@ -41,6 +41,8 @@ class _HomepageState extends State<Homepage> {
         return new ExpensesList();
       case 1:
         return new ExpenseCategories();
+      case 2:
+        return new AchievementsList();
       case 3:
         return new AboutPage();
       default:
