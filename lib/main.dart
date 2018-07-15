@@ -1,4 +1,5 @@
 import 'package:path_provider/path_provider.dart';
+import 'package:turtle/Homepage.dart';
 import 'ExpenseCategories.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
@@ -28,7 +29,7 @@ class Turtle extends StatelessWidget {
     return new MaterialApp(
       debugShowCheckedModeBanner: false, //remove shitty debug banner
       title: 'Expenses',
-      home: new ExpenseCategories(),
+      home: new Homepage(),
       theme: new ThemeData(
         primaryColor: Colors.white,
       ),

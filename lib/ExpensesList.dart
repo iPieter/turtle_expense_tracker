@@ -14,7 +14,7 @@ class _ExpensesListState extends State<ExpensesList> {
 
   static final _db = new ApplicationDatabase();
 
-  Widget _buildList() {
+  Widget build(BuildContext context) {
     return new FutureBuilder<List<Expense>>(
         future: _db.getAllExpenses(),
         builder: (context, snapshot) {
@@ -78,24 +78,6 @@ class _ExpensesListState extends State<ExpensesList> {
       onTap: () {
         setState(() {});
       },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text('Expenses'),
-        actions: <Widget>[
-          new IconButton(
-              icon: new Icon(Icons.add),
-              onPressed: () {
-                Navigator.of(context).push(new MaterialPageRoute(
-                    builder: (_) => new InputExpense(_expenses)));
-              }),
-        ],
-      ),
-      body: _buildList(),
     );
   }
 }

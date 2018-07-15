@@ -56,125 +56,14 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      backgroundColor: Colors.white,
-      key: _scaffoldKey,
-      drawer: new Drawer(
-        // Add a ListView to the drawer. This ensures the user can scroll
-        // through the options in the Drawer if there isn't enough vertical
-        // space to fit everything.
-        child: new ListView(
-          // Important: Remove any padding from the ListView.
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            new DrawerHeader(
-              child: new Text('Turtle',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 30.0,
-                  )),
-              decoration: new BoxDecoration(
-                color: Colors.lightBlue,
-              ),
-            ),
-            new ListTile(
-              leading: const Icon(Icons.list),
-              title: new Text('View All Expenses'),
-              onTap: () {
-                Navigator.of(context).push(
-                    new MaterialPageRoute(builder: (_) => new ExpensesList()));
-              },
-            ),
-            new Divider(),
-            new ListTile(
-              leading: const Icon(Icons.bookmark_border),
-              title: new Text('Share log file'),
-              onTap: () async {
-                final RenderBox box = context.findRenderObject();
-                final directory = await getApplicationDocumentsDirectory();
-
-                Share
-                    .file(
-                        mimeType: ShareType.TYPE_FILE,
-                        title: 'Log file',
-                        path: '${directory.path}/finer.log',
-                        text: 'Share the log file')
-                    .share(
-                        sharePositionOrigin:
-                            box.localToGlobal(Offset.zero) & box.size);
-
-                Navigator.pop(context);
-              },
-            ),
-            new ListTile(
-              leading: const Icon(Icons.delete_forever),
-              title: new Text('Clear Database'),
-              onTap: () {
-                setState(() {
-                  _db.deleteDatabase();
-                });
-                Navigator.pop(context);
-              },
-            ),
-            new ListTile(
-              leading: const Icon(Icons.info),
-              title: new Text('About'),
-              onTap: () {
-                Navigator.of(context).push(
-                    new MaterialPageRoute(builder: (_) => new AboutPage()));
-              },
-            ),
-          ],
+    return new Column(
+      children: <Widget>[
+        new Flexible(flex: 1, child: new PatternForwardHatchBarChart()),
+        new Flexible(
+          flex: 2,
+          child: _buildList(),
         ),
-      ),
-      appBar: new AppBar(
-        elevation: 0.0,
-        title: new Text('Expenses'),
-        actions: <Widget>[
-          new IconButton(
-              icon: new Icon(Icons.add),
-              onPressed: () {
-                Navigator.of(context).push(new MaterialPageRoute(
-                    builder: (_) => new InputExpense(_expenses)));
-              }),
-        ],
-        leading: new IconButton(
-            icon: new Icon(Icons.menu),
-            onPressed: () {
-              _scaffoldKey.currentState.openDrawer();
-            }),
-      ),
-      body: new Column(
-        children: <Widget>[
-          new Flexible(flex: 1, child: new PatternForwardHatchBarChart()),
-          new Flexible(
-            flex: 2,
-            child: _buildList(),
-          ),
-        ],
-      ),
-      bottomNavigationBar: new BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        fixedColor: Colors.blue,
-        currentIndex: 1,
-        onTap: (i) {
-          print(i);
-        },
-        items: [
-          new BottomNavigationBarItem(
-              icon: const Icon(Icons.list), title: const Text("Expenses")),
-          new BottomNavigationBarItem(
-              icon: const Icon(Icons.category),
-              title: const Text("Categories")),
-          new BottomNavigationBarItem(
-              icon: const Icon(
-                Icons.add,
-              ),
-              title: const Text("Add")),
-          new BottomNavigationBarItem(
-              icon: const Icon(Icons.settings), title: const Text("Settings")),
-        ],
-      ),
+      ],
     );
   }
 }

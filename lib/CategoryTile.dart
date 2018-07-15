@@ -11,10 +11,7 @@ class CategoryTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       //leading: const Icon(Icons.category),
-      title: new Text(
-        _data.item1.toUpperCase(),
-        style: const TextStyle(color: Colors.blueGrey, letterSpacing: 0.4),
-      ),
+      title: generateTitle(),
       trailing: new SizedBox(
         width: 100.0,
         child: new Row(
@@ -49,6 +46,30 @@ class CategoryTile extends StatelessWidget {
             new MaterialPageRoute(builder: (_) => new CategoryDetail(_data)));
       },
     );
+  }
+
+  generateTitle() {
+    if (_data.item3 < -0.5) {
+      return new Row(children: <Widget>[
+        new Text(
+          _data.item1.toUpperCase(),
+          style: const TextStyle(color: Colors.blueGrey, letterSpacing: 0.4),
+        ),
+        Padding(
+            padding: EdgeInsets.fromLTRB(4.0, 0.0, 0.0, 0.0),
+            child: const Icon(
+              Icons.sentiment_satisfied,
+              size: 18.0,
+              color: Colors.green,
+            ))
+      ]);
+    }
+    return new Row(children: <Widget>[
+      new Text(
+        _data.item1.toUpperCase(),
+        style: const TextStyle(color: Colors.blueGrey, letterSpacing: 0.4),
+      )
+    ]);
   }
 }
 
