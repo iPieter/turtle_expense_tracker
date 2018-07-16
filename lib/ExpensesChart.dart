@@ -79,8 +79,6 @@ hslToRgb(h, s, l) {
   final color = new charts.Color(
       r: (r * 255).round(), g: (g * 255).round(), b: (b * 255).round());
 
-  print(color);
-
   return color;
 }
 
