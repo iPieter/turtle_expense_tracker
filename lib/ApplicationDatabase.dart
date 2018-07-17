@@ -128,10 +128,8 @@ class ApplicationDatabase {
       var expensesInPeriod = _buildList(expenses, locations).reversed.toList();
 
       expensesInPeriod.forEach((e) {
-        _log.finest(e);
         if (e.when.isAfter(startDate) || e.when.isBefore(endDate)) {
-          _log.finest("added");
-          localExpenses.add(e);
+          if(!localExpenses.contains(e));
         }
       });
 

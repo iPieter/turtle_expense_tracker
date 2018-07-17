@@ -13,4 +13,8 @@ class Expense {
   String toString(){
     return "ID: $id, amount: $amount, name: $name, when: $when, category: $category";
   }
+
+  operator ==(Object other) {
+    return other is Expense && other.id == id;
+  }
 }
