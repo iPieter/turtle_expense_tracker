@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:currency_input_formatter/currency_input_formatter.dart';
+import 'package:geolocation/geolocation.dart' as geoloc;
 import 'ApplicationDatabase.dart';
 import 'Expense.dart';
 import 'Location.dart';
@@ -60,6 +61,33 @@ class InputExpenseState extends State<InputExpense> {
             ]));
   }
 
+  _showErrorDialog(String text) async {
+  return showDialog<Null>(
+    context: context,
+    barrierDismissible: false, // user must tap button!
+    builder: (BuildContext context) {
+      return new AlertDialog(
+        title: new Text('Error'),
+        content: new SingleChildScrollView(
+          child: new ListBody(
+            children: <Widget>[
+              new Text(text),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          new FlatButton(
+            child: new Text('Ok'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
   @override
   Widget build(
     BuildContext context,
@@ -76,22 +104,42 @@ class InputExpenseState extends State<InputExpense> {
               onPressed: () async {
                 if (_category != null) {
                   ApplicationDatabase db = new ApplicationDatabase();
-                  try {
-                    final expense = new Expense(
-                        -1,
-                        double
-                            .parse(inputController.text.replaceFirst(",", ".")),
-                        titleInputController.text.isEmpty
-                            ? _category
-                            : titleInputController.text.trim(),
-                        _otherDate == null ? new DateTime.now() : _otherDate,
-                        new Location("Paul's bakery", 1.0, 2.0),
-                        _category);
-                    await db.insertExpense(expense);
-                    setState(() {});
 
-                    Navigator.pop(context);
-                  } catch (e) {}
+                  final geoloc.GeolocationResult result = await geoloc.Geolocation.requestLocationPermission( const geoloc.LocationPermission(
+                    ios: geoloc.LocationPermissionIOS.always,
+                    android: geoloc.LocationPermissionAndroid.fine
+                  ));
+
+                  if( result.isSuccessful ) {
+                    geoloc.Geolocation.currentLocation( accuracy: geoloc.LocationAccuracy.best).listen((result) async {
+                      if(result.isSuccessful){
+                        print(result.location);
+                        try {
+                        final expense = new Expense(
+                            -1,
+                            double.parse(inputController.text.replaceFirst(",", ".")),
+                            titleInputController.text.isEmpty
+                                ? _category
+                                : titleInputController.text.trim(),
+                            _otherDate == null ? new DateTime.now() : _otherDate,
+                            new Location("Paul's bakery", result.location.latitude, result.location.longitude),
+                            _category);
+                        
+                        await db.insertExpense(expense);
+                        setState(() {});
+
+                        Navigator.pop(context);
+                      } catch (e) {}
+                      }else{
+                        print("Failed");
+                        print(result.error);
+                        _showErrorDialog("Error: ${result.error.type}");
+                      }
+                    });
+                  }else{
+                    print("Failed");
+                    _showErrorDialog("Error: ${result.error.type}");
+                  }
                 }
               },
             )
