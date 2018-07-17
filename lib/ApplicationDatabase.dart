@@ -119,7 +119,7 @@ class ApplicationDatabase {
       var db = await _getDB();
 
       List<Map> expenses = await db.rawQuery(
-          "SELECT * FROM Expense WHERE date >= ? AND date <= ?",
+          "SELECT * FROM Expense WHERE date >= ? AND date <= ? ORDER BY date",
           [start.millisecondsSinceEpoch, end.millisecondsSinceEpoch]);
       List<Map> locations = await db.rawQuery("SELECT * FROM Location");
 
@@ -138,6 +138,8 @@ class ApplicationDatabase {
       if (start.isBefore(startDate)) startDate = start;
 
       if (end.isAfter(endDate)) endDate = end;
+
+      localExpenses.sort((e1,e2) => e1.when.compareTo(e2.when));
 
       return expensesInPeriod;
     }
@@ -173,7 +175,7 @@ class ApplicationDatabase {
   Future<List<Expense>> getAllExpenses() async {
     _log.finest("Fetching expenses");
     var db = await _getDB();
-    List<Map> expenses = await db.rawQuery("SELECT * FROM Expense");
+    List<Map> expenses = await db.rawQuery("SELECT * FROM Expense ORDER BY date");
     List<Map> locations = await db.rawQuery("SELECT * FROM Location");
 
     _log.finest("Building list");
