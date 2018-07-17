@@ -76,6 +76,40 @@ class _ExpensesListState extends State<ExpensesList> {
       ),
       onTap: () {
         setState(() {});
+        showDialog(context: context,
+          barrierDismissible: false, // user must tap button!
+          builder: (BuildContext context) {
+            return new AlertDialog(
+              title: new Text('Info'),
+              content: new SingleChildScrollView(
+                child: new ListBody(
+                  children: <Widget>[
+                    new Text(expense.name),
+                    new Text(expense.location.name),
+                    new Text(expense.when.toIso8601String()),
+                    new Text("${expense.amount} €"),
+                    new IconButton(
+                      icon: new Icon(Icons.delete_forever),
+                      tooltip: 'Delete expense',
+                      onPressed: () { setState(() { 
+                        ApplicationDatabase db = new ApplicationDatabase();
+                        db.deleteExpense(expense);
+                        Navigator.of(context).pop();
+                      }); },
+                    )
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                new FlatButton(
+                  child: new Text('Ok'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          });
       },
     );
   }

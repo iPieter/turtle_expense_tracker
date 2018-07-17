@@ -56,6 +56,15 @@ class ApplicationDatabase {
     await db.rawQuery("DELETE FROM Expense");
   }
 
+  deleteExpense(Expense e) async {
+    _log.finest("Deleting expense $e");
+  
+    var db = await _getDB();
+
+    await db.rawQuery("DELETE FROM Expense WHERE id = ?", [e.id]);
+    localExpenses.removeWhere((exp) => exp.id == e.id );
+  }
+
   insertExpense(Expense e) async {
     _log.finest("Inserting expense");
     var db = await _getDB();
