@@ -25,8 +25,8 @@ class SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
+    return new ListView(
+      //crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         const Image(
           height: 150.0,
@@ -40,6 +40,16 @@ class SettingsPage extends StatelessWidget {
         }),
         buildRow("Categories", "Manage all categories",
             trailing: const Icon(Icons.chevron_right), callback: () {
+          print("test");
+        }),
+        buildRow("Currency", "Select your local currency",
+            trailing: new Text(
+              "€ 1.000,00",
+              style: const TextStyle(
+                  color: Colors.blueGrey,
+                  fontSize: 22.0,
+                  fontWeight: FontWeight.w100),
+            ), callback: () {
           print("test");
         }),
         buildRow("Authentication", "Require TouchID to open Turtle",
