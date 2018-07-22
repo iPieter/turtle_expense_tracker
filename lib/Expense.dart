@@ -11,7 +11,7 @@ class Expense {
   Expense(this.id, this.amount, this.name, this.when, this.location, this.category);
 
   String toString(){
-    return "ID: $id, amount: $amount, name: $name, when: $when, category: $category";
+    return "{ID: $id, amount: $amount, name: $name, when: $when, category: $category}";
   }
 
   operator ==(Object other) {

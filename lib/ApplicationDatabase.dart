@@ -129,7 +129,8 @@ class ApplicationDatabase {
 
       expensesInPeriod.forEach((e) {
         if (e.when.isAfter(startDate) || e.when.isBefore(endDate)) {
-          if(!localExpenses.contains(e));
+          if(!localExpenses.contains(e))
+            localExpenses.add(e);
         }
       });
 
@@ -142,9 +143,9 @@ class ApplicationDatabase {
       return expensesInPeriod;
     }
     _log.finest("Using local cache");
-
+    // Note: +-1s to have the same result as the db query.
     return localExpenses
-        .where((e) => e.when.isAfter(start) && e.when.isBefore(end))
+        .where((e) => e.when.isAfter(start.subtract(const Duration(seconds: 1))) && e.when.isBefore(end.add(const Duration(seconds: 1))))
         .toList();
   }
 
@@ -213,8 +214,9 @@ class ApplicationDatabase {
     }
     _log.finest("Using cache");
 
+    // Note: +-1s to have the same result as the db query.
     var list = localExpenses
-        .where((e) => e.when.isAfter(start) && e.when.isBefore(end));
+        .where((e) => e.when.isAfter(start.subtract(const Duration(seconds: 1))) && e.when.isBefore(end.add(const Duration(seconds: 1))));
 
     _log.finest(list);
 
