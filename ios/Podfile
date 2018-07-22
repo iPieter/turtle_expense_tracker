@@ -1,6 +1,18 @@
 # Uncomment this line to define a global platform for your project
 platform :ios, '9.0'
 
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['SWIFT_VERSION'] = '4.0'
+      config.build_settings['ENABLE_BITCODE'] = 'NO'
+    end
+    target.headers_build_phase.files.each do |file|
+      file.settings = { 'ATTRIBUTES' => ['Public'] }
+    end
+  end
+end
+
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
@@ -24,6 +36,11 @@ def parse_KV_file(file, separator='=')
       end
   }
   return pods_ary
+end
+
+pre_install do |installer|
+  # workaround for https://github.com/CocoaPods/CocoaPods/issues/3289
+  Pod::Installer::Xcode::TargetValidator.send(:define_method, :verify_no_static_framework_transitive_dependencies) {}
 end
 
 target 'Runner' do
@@ -55,10 +72,3 @@ target 'Runner' do
   }
 end
 
-post_install do |installer|
-  installer.pods_project.targets.each do |target|
-    target.build_configurations.each do |config|
-      config.build_settings['ENABLE_BITCODE'] = 'NO'
-    end
-  end
-end
