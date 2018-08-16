@@ -93,9 +93,55 @@ class InputExpenseState extends State<InputExpense> {
     BuildContext context,
   ) {
     return new Scaffold(
+        backgroundColor: Colors.white,
         appBar: new AppBar(
-          title: new Text('Add expense'),
+          elevation: 0.0,
+          title: new TextField(
+            controller: inputController,
+            autofocus: true,
+            keyboardType: TextInputType.number,
+            textAlign: TextAlign.right,
+            decoration: const InputDecoration(
+              contentPadding: const EdgeInsets.only(top: -2.0),
+              prefixText: '\€',
+              border: InputBorder.none,
+              prefixStyle: TextStyle(fontWeight: FontWeight.w200),
+            ),
+            inputFormatters: <TextInputFormatter>[
+              new CurrencyInputFormatter(
+                  allowSubdivisions: true, subdivisionMarker: "."),
+            ],
+            style: const TextStyle(fontSize: 28.0, color: Colors.black87),
+          ),
           actions: <Widget>[
+            new IconButton(
+              padding: EdgeInsets.zero,
+              icon: new Icon(Icons.today,
+                  color: _otherDate == null ? Colors.grey : Colors.black),
+              onPressed: () {
+                DatePicker.showDatePicker(
+                  context,
+                  showTitleActions: true,
+                  minYear: 1970,
+                  maxYear: 2020,
+                  initialYear: _otherDate == null
+                      ? new DateTime.now().year
+                      : _otherDate.year,
+                  initialMonth: _otherDate == null
+                      ? new DateTime.now().month
+                      : _otherDate.month,
+                  initialDate: _otherDate == null
+                      ? new DateTime.now().day
+                      : _otherDate.day,
+                  onChanged: (year, month, date) {},
+                  onConfirm: (year, month, date) {
+                    setState(() {
+                      _otherDate = new DateTime(year, month, date);
+                    });
+                  },
+                );
+              },
+            ),
             new IconButton(
               icon: new Icon(
                 Icons.check,
@@ -151,61 +197,11 @@ class InputExpenseState extends State<InputExpense> {
                   }
                 }
               },
-            )
+            ),
           ],
         ),
         body: new SingleChildScrollView(
             child: new Column(children: <Widget>[
-          new Row(
-            children: <Widget>[
-              new Flexible(
-                child: new TextField(
-                  controller: inputController,
-                  autofocus: true,
-                  keyboardType: TextInputType.number,
-                  textAlign: TextAlign.right,
-                  decoration: const InputDecoration(
-                    contentPadding: const EdgeInsets.all(15.0),
-                    prefixText: '\€',
-                    border: InputBorder.none,
-                  ),
-                  inputFormatters: <TextInputFormatter>[
-                    new CurrencyInputFormatter(
-                        allowSubdivisions: true, subdivisionMarker: "."),
-                  ],
-                  style: const TextStyle(fontSize: 28.0, color: Colors.black87),
-                ),
-              ),
-              new FlatButton(
-                padding: EdgeInsets.zero,
-                child: new Icon(Icons.today,
-                    color: _otherDate == null ? Colors.grey : Colors.black),
-                onPressed: () {
-                  DatePicker.showDatePicker(
-                    context,
-                    showTitleActions: true,
-                    minYear: 1970,
-                    maxYear: 2020,
-                    initialYear: _otherDate == null
-                        ? new DateTime.now().year
-                        : _otherDate.year,
-                    initialMonth: _otherDate == null
-                        ? new DateTime.now().month
-                        : _otherDate.month,
-                    initialDate: _otherDate == null
-                        ? new DateTime.now().day
-                        : _otherDate.day,
-                    onChanged: (year, month, date) {},
-                    onConfirm: (year, month, date) {
-                      setState(() {
-                        _otherDate = new DateTime(year, month, date);
-                      });
-                    },
-                  );
-                },
-              ),
-            ],
-          ),
           new GridView.count(
             shrinkWrap: true,
             crossAxisCount: 5,
