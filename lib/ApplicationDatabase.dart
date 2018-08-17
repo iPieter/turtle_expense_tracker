@@ -1,3 +1,4 @@
+import 'package:rule_engine/rule_engine.dart';
 import 'package:sqflite/sqflite.dart' as db_utils;
 import 'dart:io';
 import 'dart:async';
@@ -9,8 +10,7 @@ import 'package:tuple/tuple.dart';
 import 'package:logging/logging.dart';
 
 class ApplicationDatabase {
-  static final ApplicationDatabase _singleton =
-      new ApplicationDatabase._internal();
+  static final ApplicationDatabase _singleton = new ApplicationDatabase._internal();
 
   final Logger _log = new Logger('Turtle');
 
@@ -19,6 +19,14 @@ class ApplicationDatabase {
   List<Expense> localExpenses;
   DateTime startDate;
   DateTime endDate;
+  RuleEngine _ruleEngine = new RuleEngine(r"""
+  rule "expense"
+    when
+      Expense(amount > 10, $amount: amount)
+    then
+      publish Achievement( "Bob saved some money", $amount )
+  end
+  """);
 
   factory ApplicationDatabase() {
     return _singleton;
@@ -33,14 +41,12 @@ class ApplicationDatabase {
       //print("Deleting old db");
       //await db_utils.deleteDatabase(path);
 
-      _db = await db_utils.openDatabase(path, version: 1,
-          onCreate: (db_utils.Database db, int version) async {
+      _db = await db_utils.openDatabase(path, version: 1, onCreate: (db_utils.Database db, int version) async {
         _log.info("Creating new db");
 
         await db.execute(
             "CREATE TABLE Expense(id INTEGER PRIMARY KEY, amount REAL, name TEXT, date INTEGER, location INTEGER, category TEXT)");
-        await db.execute(
-            "CREATE TABLE Location(id INTEGER PRIMARY KEY, name TEXT, lat REAL, lng REAL)");
+        await db.execute("CREATE TABLE Location(id INTEGER PRIMARY KEY, name TEXT, lat REAL, lng REAL)");
       }, onOpen: (db_utils.Database db) {
         _log.finest("DB opened");
       });
@@ -58,11 +64,11 @@ class ApplicationDatabase {
 
   deleteExpense(Expense e) async {
     _log.finest("Deleting expense $e");
-  
+
     var db = await _getDB();
 
     await db.rawQuery("DELETE FROM Expense WHERE id = ?", [e.id]);
-    localExpenses.removeWhere((exp) => exp.id == e.id );
+    localExpenses.removeWhere((exp) => exp.id == e.id);
   }
 
   insertExpense(Expense e) async {
@@ -71,16 +77,14 @@ class ApplicationDatabase {
     await mutex.acquire();
     _log.finest("Got DB handle");
 
-    List<Map> loc = await db.rawQuery(
-        "SELECT * FROM Location WHERE name = ? AND lat = ? AND lng = ?",
+    List<Map> loc = await db.rawQuery("SELECT * FROM Location WHERE name = ? AND lat = ? AND lng = ?",
         [e.location.name, e.location.lat, e.location.lng]);
 
     int ID = 0;
     if (loc.isEmpty) {
       _log.finest("Creating a new location entry");
       ID = await db.rawInsert(
-          "INSERT INTO Location(name,lat,lng) VALUES(?,?,?)",
-          [e.location.name, e.location.lat, e.location.lng]);
+          "INSERT INTO Location(name,lat,lng) VALUES(?,?,?)", [e.location.name, e.location.lat, e.location.lng]);
 
       List<Map> locs = await db.rawQuery("SELECT * FROM Location");
       _log.finest(locs);
@@ -92,8 +96,7 @@ class ApplicationDatabase {
     _log.finest("Location ID ${ID}");
 
     await db.transaction((txn) async {
-      int id = await txn.rawInsert(
-          "INSERT INTO Expense(amount,name,date,location,category) VALUES(?,?,?,?,?)",
+      int id = await txn.rawInsert("INSERT INTO Expense(amount,name,date,location,category) VALUES(?,?,?,?,?)",
           [e.amount, e.name, e.when.millisecondsSinceEpoch, ID, e.category]);
       e.id = id;
       localExpenses.add(e);
@@ -101,6 +104,7 @@ class ApplicationDatabase {
     });
 
     mutex.release();
+    _ruleEngine.insertFact(e);
   }
 
   getExpensesInPeriod(DateTime start, DateTime end) async {
@@ -118,8 +122,7 @@ class ApplicationDatabase {
       _log.finest("Using DB");
       var db = await _getDB();
 
-      List<Map> expenses = await db.rawQuery(
-          "SELECT * FROM Expense WHERE date >= ? AND date <= ? ORDER BY date",
+      List<Map> expenses = await db.rawQuery("SELECT * FROM Expense WHERE date >= ? AND date <= ? ORDER BY date",
           [start.millisecondsSinceEpoch, end.millisecondsSinceEpoch]);
       List<Map> locations = await db.rawQuery("SELECT * FROM Location");
 
@@ -129,8 +132,7 @@ class ApplicationDatabase {
 
       expensesInPeriod.forEach((e) {
         if (e.when.isAfter(startDate) || e.when.isBefore(endDate)) {
-          if(!localExpenses.contains(e))
-            localExpenses.add(e);
+          if (!localExpenses.contains(e)) localExpenses.add(e);
         }
       });
 
@@ -138,14 +140,16 @@ class ApplicationDatabase {
 
       if (end.isAfter(endDate)) endDate = end;
 
-      localExpenses.sort((e1,e2) => e1.when.compareTo(e2.when));
+      localExpenses.sort((e1, e2) => e1.when.compareTo(e2.when));
 
       return expensesInPeriod;
     }
     _log.finest("Using local cache");
     // Note: +-1s to have the same result as the db query.
     return localExpenses
-        .where((e) => e.when.isAfter(start.subtract(const Duration(seconds: 1))) && e.when.isBefore(end.add(const Duration(seconds: 1))))
+        .where((e) =>
+            e.when.isAfter(start.subtract(const Duration(seconds: 1))) &&
+            e.when.isBefore(end.add(const Duration(seconds: 1))))
         .toList();
   }
 
@@ -155,16 +159,10 @@ class ApplicationDatabase {
     if (expenses == null || locations == null) return result;
 
     for (var e in expenses) {
-      var loc = locations.firstWhere((entry) => entry["id"] == e["location"],
-          orElse: () => null);
+      var loc = locations.firstWhere((entry) => entry["id"] == e["location"], orElse: () => null);
       if (loc == null) continue;
-      Expense expense = new Expense(
-          e["id"],
-          e["amount"],
-          e["name"],
-          new DateTime.fromMillisecondsSinceEpoch(e["date"]),
-          new Location(loc["name"], loc["lat"], loc["lng"]),
-          e["category"]);
+      Expense expense = new Expense(e["id"], e["amount"], e["name"], new DateTime.fromMillisecondsSinceEpoch(e["date"]),
+          new Location(loc["name"], loc["lat"], loc["lng"]), e["category"]);
       result.add(expense);
     }
 
@@ -182,8 +180,7 @@ class ApplicationDatabase {
     localExpenses = _buildList(expenses, locations).reversed.toList();
 
     if (localExpenses.length > 0) {
-      startDate =
-          localExpenses.reduce((a, b) => a.when.isBefore(b.when) ? a : b).when;
+      startDate = localExpenses.reduce((a, b) => a.when.isBefore(b.when) ? a : b).when;
       endDate = new DateTime.now();
 
       _log.fine("Current:");
@@ -194,8 +191,7 @@ class ApplicationDatabase {
     return localExpenses;
   }
 
-  Future<List<Tuple2<String, double>>> getCategoryCount(
-      DateTime start, DateTime end) async {
+  Future<List<Tuple2<String, double>>> getCategoryCount(DateTime start, DateTime end) async {
     _log.finest("Fetching categories");
     if (start.isBefore(startDate) || end.isAfter(endDate)) {
       _log.finest("Using DB");
@@ -215,8 +211,9 @@ class ApplicationDatabase {
     _log.finest("Using cache");
 
     // Note: +-1s to have the same result as the db query.
-    var list = localExpenses
-        .where((e) => e.when.isAfter(start.subtract(const Duration(seconds: 1))) && e.when.isBefore(end.add(const Duration(seconds: 1))));
+    var list = localExpenses.where((e) =>
+        e.when.isAfter(start.subtract(const Duration(seconds: 1))) &&
+        e.when.isBefore(end.add(const Duration(seconds: 1))));
 
     _log.finest(list);
 
@@ -226,10 +223,8 @@ class ApplicationDatabase {
     _log.finest(uniqueCats);
 
     return uniqueCats
-        .map((e) => new Tuple2<String, double>(
-            e,
-            list.fold(0.0,
-                (prev, cur) => prev + (cur.category == e ? cur.amount : 0.0))))
+        .map((e) =>
+            new Tuple2<String, double>(e, list.fold(0.0, (prev, cur) => prev + (cur.category == e ? cur.amount : 0.0))))
         .toList();
   }
 
@@ -239,5 +234,9 @@ class ApplicationDatabase {
     localExpenses = new List();
     startDate = new DateTime.now();
     endDate = new DateTime.fromMillisecondsSinceEpoch(0);
+
+    _ruleEngine.registerListener((type, attributes) {
+      print("insert $type with arguments $attributes");
+    });
   }
 }

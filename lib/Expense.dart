@@ -1,6 +1,7 @@
 import 'Location.dart';
+import 'package:rule_engine/fact.dart';
 
-class Expense {
+class Expense extends Fact {
   int id;
   double amount;
   String name;
@@ -16,5 +17,18 @@ class Expense {
 
   operator ==(Object other) {
     return other is Expense && other.id == id;
+  }
+
+  @override
+  Map<String, dynamic> attributeMap() {
+    var mapping = new Map<String, dynamic>();
+    mapping["id"] = id;
+    mapping["amount"] = amount;
+    mapping["name"] = name;
+    mapping["when"] = when;
+    mapping["location"] = location;
+    mapping["category"] = category;
+
+    return mapping;
   }
 }
