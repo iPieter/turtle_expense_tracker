@@ -7,7 +7,6 @@ import 'package:tuple/tuple.dart';
 class Statistics {
   ApplicationDatabase _db;
   final Logger _log = new Logger('Statistics');
-  List<Tuple3> achievements = new List();
 
   Statistics() {
     _db = new ApplicationDatabase();

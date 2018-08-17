@@ -1,6 +1,5 @@
 import 'package:path_provider/path_provider.dart';
 import 'package:turtle/Homepage.dart';
-import 'ExpenseCategories.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'dart:io';
@@ -16,9 +15,8 @@ class Turtle extends StatelessWidget {
     Logger.root.onRecord.listen((LogRecord rec) async {
       final directory = await getApplicationDocumentsDirectory();
       print('${rec.level.name}: ${rec.time}: ${rec.message}');
-      new File('${directory.path}/finer.log').writeAsStringSync(
-          '${rec.level.name}: ${rec.time}: ${rec.message}',
-          mode: FileMode.writeOnlyAppend);
+      new File('${directory.path}/finer.log')
+          .writeAsStringSync('${rec.level.name}: ${rec.time}: ${rec.message}', mode: FileMode.writeOnlyAppend);
     });
 
     _log.info("Logger configurated");

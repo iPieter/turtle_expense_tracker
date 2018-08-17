@@ -1,4 +1,13 @@
-rule "..."
-    when
-    then
+rule "expense"
+  when
+    Expense(amount > 10, $amount: amount)
+  then
+    publish Achievement( "Bob saved some money", $amount )
+end
+
+rule "expense 2"
+  when
+    Expense(amount > 5, $amount: amount)
+  then
+    publish Achievement( "Bob saved money", $amount )
 end

@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:rule_engine/rule_engine.dart';
 import 'package:sqflite/sqflite.dart' as db_utils;
 import 'dart:io';
@@ -19,14 +20,10 @@ class ApplicationDatabase {
   List<Expense> localExpenses;
   DateTime startDate;
   DateTime endDate;
-  RuleEngine _ruleEngine = new RuleEngine(r"""
-  rule "expense"
-    when
-      Expense(amount > 10, $amount: amount)
-    then
-      publish Achievement( "Bob saved some money", $amount )
-  end
-  """);
+
+  //achievement shit
+  List<Tuple3> achievements = new List();
+  RuleEngine _ruleEngine;
 
   factory ApplicationDatabase() {
     return _singleton;
@@ -235,8 +232,11 @@ class ApplicationDatabase {
     startDate = new DateTime.now();
     endDate = new DateTime.fromMillisecondsSinceEpoch(0);
 
-    _ruleEngine.registerListener((type, attributes) {
-      print("insert $type with arguments $attributes");
+    rootBundle.loadString("assets/achievements.daru").then((s) {
+      _ruleEngine = new RuleEngine(s);
+      _ruleEngine.registerListener((type, attributes) {
+        print("insert $type with arguments $attributes");
+      });
     });
   }
 }
