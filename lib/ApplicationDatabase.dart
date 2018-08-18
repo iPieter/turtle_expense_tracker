@@ -236,6 +236,7 @@ class ApplicationDatabase {
       _ruleEngine = new RuleEngine(s);
       _ruleEngine.registerListener((type, attributes) {
         print("insert $type with arguments $attributes");
+        achievements.add(new Tuple3(attributes[0], attributes[1], attributes[2]));
       });
     });
   }
