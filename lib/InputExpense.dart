@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:currency_input_formatter/currency_input_formatter.dart';
 import 'package:geolocation/geolocation.dart' as geoloc;
+import 'package:tuple/tuple.dart';
 import 'ApplicationDatabase.dart';
 import 'Expense.dart';
 import 'Location.dart';
@@ -180,10 +181,14 @@ class InputExpenseState extends State<InputExpense> {
                                   result.location.longitude),
                               _category);
 
-                          await db.insertExpense(expense);
+                          var achievements = await db.insertExpense(expense);
                           setState(() {});
 
-                          Navigator.pop(context);
+                          if (achievements.length > 0) {
+                            _renderAchievementBadge(achievements[0]);
+                          } else {
+                            Navigator.pop(context);
+                          }
                         } catch (e) {}
                       } else {
                         print("Failed");
@@ -235,5 +240,24 @@ class InputExpenseState extends State<InputExpense> {
             ),
           ),
         ])));
+  }
+
+  void _renderAchievementBadge(Tuple3 achievement) {
+    Navigator.of(context).push(new MaterialPageRoute(
+        builder: (_) => new Scaffold(
+              body: new SafeArea(
+                child: new Column(
+                  children: <Widget>[
+                    new Text(achievement.toString()),
+                    new FlatButton(
+                      child: const Text("Awesome"),
+                      onPressed: () {
+                        Navigator.of(context)..pop()..pop();
+                      },
+                    )
+                  ],
+                ),
+              ),
+            )));
   }
 }
