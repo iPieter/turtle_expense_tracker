@@ -20,6 +20,9 @@ class InputExpense extends StatefulWidget {
 class InputExpenseState extends State<InputExpense> {
   final inputController = new TextEditingController();
   final titleInputController = new TextEditingController();
+  final loc = geoloc.Geolocation
+      .currentLocation(accuracy: geoloc.LocationAccuracy.best)
+      .last;
 
   List<Expense> _expenses;
 
@@ -152,54 +155,41 @@ class InputExpenseState extends State<InputExpense> {
                 if (_category != null) {
                   ApplicationDatabase db = new ApplicationDatabase();
 
-                  final geoloc.GeolocationResult result =
-                      await geoloc.Geolocation.requestLocationPermission(
-                          const geoloc.LocationPermission(
-                              ios: geoloc.LocationPermissionIOS.whenInUse,
-                              android: geoloc.LocationPermissionAndroid.fine));
-
+                  var result = await loc;
                   if (result.isSuccessful) {
-                    geoloc.Geolocation
-                        .currentLocation(accuracy: geoloc.LocationAccuracy.best)
-                        .listen((result) async {
-                      if (result.isSuccessful) {
-                        print(result.location);
-                        try {
-                          final expense = new Expense(
-                              -1,
-                              double.parse(
-                                  inputController.text.replaceFirst(",", ".")),
-                              titleInputController.text.isEmpty
-                                  ? _category
-                                  : titleInputController.text.trim(),
-                              _otherDate == null
-                                  ? new DateTime.now()
-                                  : _otherDate,
-                              new Location(
-                                  "Paul's bakery",
-                                  result.location.latitude,
-                                  result.location.longitude),
-                              _category);
+                    print(result.location);
+                    try {
+                      final expense = new Expense(
+                          -1,
+                          double.parse(
+                              inputController.text.replaceFirst(",", ".")),
+                          titleInputController.text.isEmpty
+                              ? _category
+                              : titleInputController.text.trim(),
+                          _otherDate == null ? new DateTime.now() : _otherDate,
+                          new Location(
+                              "Paul's bakery",
+                              result.location.latitude,
+                              result.location.longitude),
+                          _category);
 
-                          var achievements = await db.insertExpense(expense);
-                          setState(() {});
+                      var achievements = await db.insertExpense(expense);
+                      setState(() {});
 
-                          if (achievements.length > 0) {
-                            _renderAchievementBadge(achievements[0]);
-                          } else {
-                            Navigator.pop(context);
-                          }
-                        } catch (e) {}
+                      if (achievements.length > 0) {
+                        _renderAchievementBadge(achievements[0]);
                       } else {
-                        print("Failed");
-                        print(result.error);
-                        _showErrorDialog("Error: ${result.error.type}");
+                        Navigator.pop(context);
                       }
-                    });
+                    } catch (e) {}
                   } else {
                     print("Failed");
+                    print(result.error);
                     _showErrorDialog("Error: ${result.error.type}");
                   }
+                } else {
+                  print("Failed");
+                  _showErrorDialog("Failed to fetch the current location.");
                 }
               },
             ),
