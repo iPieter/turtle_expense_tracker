@@ -68,9 +68,10 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
         padding: EdgeInsets.only(left: 32.0, top: 8.0),
         child: Row(children: <Widget>[
           new Padding(
-            child:
-                Text("TOTAL", style: const TextStyle(color: Colors.blueGrey)),
-            padding: EdgeInsets.only(right: 3.0, top: 5.0),
+            child: Text("TOTAL",
+                style: const TextStyle(
+                    color: Colors.blueGrey, fontWeight: FontWeight.w700)),
+            padding: EdgeInsets.only(right: 5.0, top: 10.0),
           ),
           new FutureBuilder(
               future: new Statistics().getSumForWeeks(1),
@@ -85,10 +86,10 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
                       return new Text('Error: ${snapshot.error}');
                     else
                       return new Text(
-                        snapshot.data[0].y.toString(),
+                        "€ " + snapshot.data[0].y.toString(),
                         style: new TextStyle(
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.w400,
+                            fontSize: 28.0,
+                            fontWeight: FontWeight.w500,
                             color: Colors.blueGrey,
                             letterSpacing: 0.3),
                       );
