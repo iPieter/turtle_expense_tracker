@@ -19,7 +19,10 @@ class InputExpense extends StatefulWidget {
 class InputExpenseState extends State<InputExpense> {
   final inputController = new TextEditingController();
   final titleInputController = new TextEditingController();
-  final loc = Geolocator().getCurrentPosition(LocationAccuracy.high);
+  var loc = Geolocator().getCurrentPosition(LocationAccuracy.high);
+  var locResult;
+  var placemark;
+  var placemarkResult;
 
   List<Expense> _expenses;
 
@@ -145,10 +148,9 @@ class InputExpenseState extends State<InputExpense> {
               if (_category != null) {
                 ApplicationDatabase db = new ApplicationDatabase();
 
-                var result = await loc;
-                if (result != null) {
+                if (locResult != null) {
                   print(
-                      "lat: ${result.latitude} long: ${result.longitude} acc: ${result.accuracy}");
+                      "lat: ${locResult.latitude} long: ${locResult.longitude} acc: ${locResult.accuracy}");
                   try {
                     final expense = new Expense(
                         -1,
@@ -158,8 +160,8 @@ class InputExpenseState extends State<InputExpense> {
                             ? _category
                             : titleInputController.text.trim(),
                         _otherDate == null ? new DateTime.now() : _otherDate,
-                        new Location(
-                            "Paul's bakery", result.latitude, result.longitude),
+                        new Location(placemarkResult.name, locResult.latitude,
+                            locResult.longitude),
                         _category);
 
                     var achievements = await db.insertExpense(expense);
@@ -173,7 +175,6 @@ class InputExpenseState extends State<InputExpense> {
                   } catch (e) {}
                 } else {
                   print("Failed");
-                  _showErrorDialog("Error: $result");
                 }
               } else {
                 print("Failed");
@@ -187,10 +188,10 @@ class InputExpenseState extends State<InputExpense> {
         new Row(
           children: <Widget>[
             new Padding(
-              child: Text("SPENT \€",
+              child: Text("\€",
                   style: const TextStyle(
                       color: Colors.blueGrey, fontWeight: FontWeight.w700)),
-              padding: EdgeInsets.only(left: 12.0, right: 5.0, top: 14.0),
+              padding: EdgeInsets.only(left: 18.0, right: 5.0, top: 14.0),
             ),
             new Container(
               width: 100.0,
@@ -210,6 +211,19 @@ class InputExpenseState extends State<InputExpense> {
                 style: const TextStyle(fontSize: 32.0, color: Colors.blueGrey),
               ),
             )
+          ],
+        ),
+        new Divider(),
+        new Row(
+          children: <Widget>[
+            new Padding(
+              padding: EdgeInsets.only(left: 18.0, right: 5.0),
+              child: new Icon(
+                Icons.my_location,
+                color: Colors.blueGrey,
+              ),
+            ),
+            _getPosition(),
           ],
         ),
         new Divider(),
@@ -262,6 +276,57 @@ class InputExpenseState extends State<InputExpense> {
                 ),
               ),
             )));
+  }
+
+  Widget _getPosition() {
+    return new FutureBuilder(
+        future: loc,
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.none:
+            //return new Text('Press button to start');
+            case ConnectionState.waiting:
+              return Text("Finding location...",
+                  style: const TextStyle(
+                      color: Colors.blueGrey, fontWeight: FontWeight.w700));
+            default:
+              if (snapshot.hasError)
+                return new Text('Error: ${snapshot.error}');
+              else {
+                Position p = snapshot.data;
+                locResult = p;
+                placemark = Geolocator()
+                    .placemarkFromCoordinates(p.latitude, p.longitude);
+
+                return _getLocation();
+              }
+          }
+        });
+  }
+
+  Widget _getLocation() {
+    return new FutureBuilder(
+        future: placemark,
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.none:
+            //return new Text('Press button to start');
+            case ConnectionState.waiting:
+              return Text("Finding location...",
+                  style: const TextStyle(
+                      color: Colors.blueGrey, fontWeight: FontWeight.w700));
+            default:
+              if (snapshot.hasError)
+                return new Text('Error: ${snapshot.error}');
+              else {
+                List<Placemark> p = snapshot.data;
+                placemarkResult = p[0];
+                return new Text("${p[0].name}",
+                    style: const TextStyle(
+                        color: Colors.blueGrey, fontWeight: FontWeight.w700));
+              }
+          }
+        });
   }
 }
 
