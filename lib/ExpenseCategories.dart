@@ -74,7 +74,7 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
             padding: EdgeInsets.only(right: 5.0, top: 10.0),
           ),
           new FutureBuilder(
-              future: new Statistics().getSumForWeeks(1),
+              future: new Statistics().getSumForWeeks(0),
               builder: (ctx, snapshot) {
                 switch (snapshot.connectionState) {
                   case ConnectionState.none:

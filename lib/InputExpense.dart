@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:currency_input_formatter/currency_input_formatter.dart';
-import 'package:geolocation/geolocation.dart' as geoloc;
+import 'package:geolocator/geolocator.dart';
 import 'package:tuple/tuple.dart';
 import 'ApplicationDatabase.dart';
 import 'Expense.dart';
@@ -20,9 +19,7 @@ class InputExpense extends StatefulWidget {
 class InputExpenseState extends State<InputExpense> {
   final inputController = new TextEditingController();
   final titleInputController = new TextEditingController();
-  final loc = geoloc.Geolocation
-      .currentLocation(accuracy: geoloc.LocationAccuracy.best)
-      .last;
+  final loc = Geolocator().getCurrentPosition(LocationAccuracy.high);
 
   List<Expense> _expenses;
 
@@ -59,7 +56,10 @@ class InputExpenseState extends State<InputExpense> {
                       offset: Offset(0.8, 1.3))
                 ],
                 shape: BoxShape.circle,
-                gradient: LinearGradient(colors: [color, color1])),
+                gradient: (_category != null && _category != name)
+                    ? LinearGradient(
+                        colors: [color.withAlpha(150), color1.withAlpha(150)])
+                    : LinearGradient(colors: [color, color1])),
             child: Text(
               name.toUpperCase(),
               textAlign: TextAlign.center,
@@ -106,23 +106,7 @@ class InputExpenseState extends State<InputExpense> {
       backgroundColor: Colors.white,
       appBar: new AppBar(
         elevation: 0.0,
-        title: new TextField(
-          controller: inputController,
-          autofocus: true,
-          keyboardType: TextInputType.number,
-          textAlign: TextAlign.right,
-          decoration: const InputDecoration(
-            contentPadding: const EdgeInsets.only(top: -2.0),
-            prefixText: '\€',
-            border: InputBorder.none,
-            prefixStyle: TextStyle(fontWeight: FontWeight.w200),
-          ),
-          inputFormatters: <TextInputFormatter>[
-            new CurrencyInputFormatter(
-                allowSubdivisions: true, subdivisionMarker: "."),
-          ],
-          style: const TextStyle(fontSize: 28.0, color: Colors.black87),
-        ),
+        title: const Text("New Expense"),
         actions: <Widget>[
           new IconButton(
             padding: EdgeInsets.zero,
@@ -162,8 +146,9 @@ class InputExpenseState extends State<InputExpense> {
                 ApplicationDatabase db = new ApplicationDatabase();
 
                 var result = await loc;
-                if (result.isSuccessful) {
-                  print(result.location);
+                if (result != null) {
+                  print(
+                      "lat: ${result.latitude} long: ${result.longitude} acc: ${result.accuracy}");
                   try {
                     final expense = new Expense(
                         -1,
@@ -173,8 +158,8 @@ class InputExpenseState extends State<InputExpense> {
                             ? _category
                             : titleInputController.text.trim(),
                         _otherDate == null ? new DateTime.now() : _otherDate,
-                        new Location("Paul's bakery", result.location.latitude,
-                            result.location.longitude),
+                        new Location(
+                            "Paul's bakery", result.latitude, result.longitude),
                         _category);
 
                     var achievements = await db.insertExpense(expense);
@@ -188,8 +173,7 @@ class InputExpenseState extends State<InputExpense> {
                   } catch (e) {}
                 } else {
                   print("Failed");
-                  print(result.error);
-                  _showErrorDialog("Error: ${result.error.type}");
+                  _showErrorDialog("Error: $result");
                 }
               } else {
                 print("Failed");
@@ -200,6 +184,34 @@ class InputExpenseState extends State<InputExpense> {
         ],
       ),
       body: new Column(children: <Widget>[
+        new Row(
+          children: <Widget>[
+            new Padding(
+              child: Text("SPENT \€",
+                  style: const TextStyle(
+                      color: Colors.blueGrey, fontWeight: FontWeight.w700)),
+              padding: EdgeInsets.only(left: 12.0, right: 5.0, top: 14.0),
+            ),
+            new Container(
+              width: 100.0,
+              child: new TextField(
+                controller: inputController,
+                autofocus: true,
+                keyboardType: TextInputType.number,
+                textAlign: TextAlign.start,
+                decoration: const InputDecoration(
+                  contentPadding: const EdgeInsets.only(top: 0.0),
+                  border: const UnderlineInputBorder(
+                      borderSide: const BorderSide()),
+                ),
+                inputFormatters: <TextInputFormatter>[
+                  WhitelistingTextInputFormatter(new RegExp(r'[\d\.,]+')),
+                ],
+                style: const TextStyle(fontSize: 32.0, color: Colors.blueGrey),
+              ),
+            )
+          ],
+        ),
         new Divider(),
         new Container(
           height: 100.0,
@@ -250,5 +262,20 @@ class InputExpenseState extends State<InputExpense> {
                 ),
               ),
             )));
+  }
+}
+
+class CurrencyInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    var pattern = new RegExp("r[0-9]*([,.][0-9]*)?");
+
+    if (pattern.hasMatch(newValue.text)) {
+      return newValue;
+    } else {
+      return newValue.copyWith(
+          text: pattern.firstMatch(newValue.text).group(0));
+    }
   }
 }
