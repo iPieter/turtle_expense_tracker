@@ -214,17 +214,27 @@ class InputExpenseState extends State<InputExpense> {
           ],
         ),
         new Divider(),
-        new Row(
-          children: <Widget>[
-            new Padding(
-              padding: EdgeInsets.only(left: 18.0, right: 5.0),
-              child: new Icon(
-                Icons.my_location,
-                color: Colors.blueGrey,
+        new GestureDetector(
+          onTap: () {
+            setState(() {
+              loc = Geolocator().getCurrentPosition(LocationAccuracy.high);
+              locResult = null;
+              placemark = null;
+              placemarkResult = null;
+            });
+          },
+          child: new Row(
+            children: <Widget>[
+              new Padding(
+                padding: EdgeInsets.only(left: 18.0, right: 5.0),
+                child: new Icon(
+                  Icons.my_location,
+                  color: Colors.blueGrey,
+                ),
               ),
-            ),
-            _getPosition(),
-          ],
+              _getPosition(),
+            ],
+          ),
         ),
         new Divider(),
         new Container(

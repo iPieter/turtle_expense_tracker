@@ -246,6 +246,8 @@ class ApplicationDatabase {
         .toList();
   }
 
+  void _insertAchievement(Tuple3 achievement) {}
+
   ApplicationDatabase._internal() {
     _db = null;
     mutex = new Mutex();
