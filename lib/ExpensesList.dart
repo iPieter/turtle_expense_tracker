@@ -40,7 +40,7 @@ class _ExpensesListState extends State<ExpensesList> {
                         key: new Key(index.toString()),
                         delegate: slidableDelegate,
                         actionExtentRatio: 0.25,
-                        leftActions: <Widget>[
+                        actions: <Widget>[
                           new IconSlideAction(
                             caption: 'Move',
                             color: Colors.blue,
@@ -48,7 +48,7 @@ class _ExpensesListState extends State<ExpensesList> {
                             onTap: () => print('Change category'),
                           ),
                         ],
-                        rightActions: <Widget>[
+                        secondaryActions: <Widget>[
                           new IconSlideAction(
                               caption: 'Delete',
                               color: Colors.red,

@@ -54,11 +54,47 @@ class ExpenseCategoriesState extends State<ExpenseCategories> {
     return new Column(
       children: <Widget>[
         new Flexible(flex: 1, child: new PatternForwardHatchBarChart()),
+        _buildTotal(),
         new Flexible(
           flex: 2,
           child: _buildList(),
         ),
       ],
     );
+  }
+
+  Widget _buildTotal() {
+    return new Padding(
+        padding: EdgeInsets.only(left: 32.0, top: 8.0),
+        child: Row(children: <Widget>[
+          new Padding(
+            child: Text("TOTAL",
+                style: const TextStyle(
+                    color: Colors.blueGrey, fontWeight: FontWeight.w700)),
+            padding: EdgeInsets.only(right: 5.0, top: 10.0),
+          ),
+          new FutureBuilder(
+              future: new Statistics().getSumForWeeks(0),
+              builder: (ctx, snapshot) {
+                switch (snapshot.connectionState) {
+                  case ConnectionState.none:
+                    return new Text('Press button to start');
+                  case ConnectionState.waiting:
+                    return new Text('Awaiting result...');
+                  default:
+                    if (snapshot.hasError || snapshot.data == null)
+                      return new Text('Error: ${snapshot.error}');
+                    else
+                      return new Text(
+                        "€ " + snapshot.data[0].y.toString(),
+                        style: new TextStyle(
+                            fontSize: 28.0,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.blueGrey,
+                            letterSpacing: 0.3),
+                      );
+                }
+              }),
+        ]));
   }
 }

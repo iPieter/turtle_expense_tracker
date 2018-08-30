@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:turtle/ApplicationDatabase.dart';
 
 class AchievementsList extends StatelessWidget {
   Widget buildBadge(String index, String title, String desc) {
@@ -36,12 +38,23 @@ class AchievementsList extends StatelessWidget {
         ));
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return GridView.count(
-      childAspectRatio: 0.8,
-      crossAxisCount: 2,
-      children: <Widget>[
+  Future<List<Widget>> _getAchievements() async {
+    ApplicationDatabase db = new ApplicationDatabase();
+
+    var widgets = List<Widget>();
+
+    var achievements = await db.getAchievements();
+
+    print(achievements);
+
+    for (var t in achievements) {
+      widgets.add(buildBadge(t.item1, t.item2, t.item3));
+    }
+
+    return widgets;
+
+    /*
+    return <Widget>[
         buildBadge("01", "First spending", "The beginning of a new era"),
         buildBadge("02", "Cold turkey", "Stop spending on a category"),
         buildBadge("03", "Sober monkey", "No booze for a month"),
@@ -51,6 +64,28 @@ class AchievementsList extends StatelessWidget {
         buildBadge("06", "Weekly saver",
             "Descrease your spending for 4 weeks in a row"),
       ],
-    );
+      */
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+        future: _getAchievements(),
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.none:
+            case ConnectionState.waiting:
+              return new Text('Awaiting result...');
+            default:
+              if (snapshot.hasError || snapshot.data.length == 0)
+                return new Text('Error: ${snapshot.error}');
+              else
+                return GridView.count(
+                  childAspectRatio: 0.8,
+                  crossAxisCount: 2,
+                  children: snapshot.data,
+                );
+          }
+        });
   }
 }

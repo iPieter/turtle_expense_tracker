@@ -12,13 +12,10 @@ class Statistics {
     _db = new ApplicationDatabase();
   }
 
-  Future<double> sumForCategory(
-      DateTime start, DateTime end, String category) async {
+  Future<double> sumForCategory(DateTime start, DateTime end, String category) async {
     var expenses = await _db.getExpensesInPeriod(start, end);
 
-    Iterable mapping = expenses
-        .where((expense) => expense.category == category)
-        .map((expense) => expense.amount);
+    Iterable mapping = expenses.where((expense) => expense.category == category).map((expense) => expense.amount);
     if (mapping.length > 1) {
       return mapping.reduce((a, b) => a + b);
     } else if (mapping.length == 1) {
@@ -45,38 +42,27 @@ class Statistics {
   List<DateTime> getWeekDates(int n) {
     var now = new DateTime.now();
 
-    var lastWeekStart =
-        now.subtract(new Duration(days: (now.weekday + 6 + 7 * (n - 1))));
+    var lastWeekStart = now.subtract(new Duration(days: (now.weekday + 6 + 7 * (n - 1))));
 
-    lastWeekStart = new DateTime(
-        lastWeekStart.year, lastWeekStart.month, lastWeekStart.day);
+    lastWeekStart = new DateTime(lastWeekStart.year, lastWeekStart.month, lastWeekStart.day);
 
-    return [
-      lastWeekStart,
-      lastWeekStart
-          .add(const Duration(days: 7))
-          .subtract(const Duration(seconds: 1))
-    ];
+    return [lastWeekStart, lastWeekStart.add(const Duration(days: 7)).subtract(const Duration(seconds: 1))];
   }
 
   Future<List<Tuple3<String, double, double>>> getWeekData() async {
     var thisWeekDates = getWeekDates(0);
     var lastWeekDates = getWeekDates(1);
 
-    List<Tuple2<String, double>> thisWeek =
-        await _db.getCategoryCount(thisWeekDates[0], thisWeekDates[1]);
-    List<Tuple2<String, double>> lastWeek =
-        await _db.getCategoryCount(lastWeekDates[0], lastWeekDates[1]);
+    List<Tuple2<String, double>> thisWeek = await _db.getCategoryCount(thisWeekDates[0], thisWeekDates[1]);
+    List<Tuple2<String, double>> lastWeek = await _db.getCategoryCount(lastWeekDates[0], lastWeekDates[1]);
 
     var result = new List<Tuple3<String, double, double>>();
 
     for (var expense in thisWeek) {
       _log.finest(expense);
-      var catLastWeek = lastWeek.firstWhere((e) => e.item1 == expense.item1,
-          orElse: () => null);
+      var catLastWeek = lastWeek.firstWhere((e) => e.item1 == expense.item1, orElse: () => null);
       if (catLastWeek != null) {
-        result.add(new Tuple3(expense.item1, expense.item2,
-            expense.item2 / catLastWeek.item2 * 100.0 - 100.0));
+        result.add(new Tuple3(expense.item1, expense.item2, expense.item2 / catLastWeek.item2 * 100.0 - 100.0));
       } else {
         result.add(new Tuple3(expense.item1, expense.item2, double.infinity));
       }
@@ -84,9 +70,7 @@ class Statistics {
 
     result.sort((e1, e2) => (e1.item2 - e2.item2).toInt());
 
-    return result.reversed
-        .toList()
-        .sublist(0, result.length > 5 ? 5 : result.length);
+    return result.reversed.toList().sublist(0, result.length > 5 ? 5 : result.length);
   }
 
   Future<List<Ordinal>> getSumForWeeks(int numberOfWeeks) async {
@@ -94,24 +78,20 @@ class Statistics {
 
     for (var i = numberOfWeeks; i >= 0; i--) {
       var week = getWeekDates(i);
-      Ordinal o = new Ordinal(
-          week[0].day.toString() + "/" + week[0].month.toString(),
-          await sumForAll(week[0], week[1]));
+      Ordinal o =
+          new Ordinal(week[0].day.toString() + "/" + week[0].month.toString(), await sumForAll(week[0], week[1]));
       data.add(o);
     }
     return data;
   }
 
-  Future<List<TimeSeriesOrdinal>> getCategoricalSumForWeeks(
-      int numberOfWeeks, String category) async {
+  Future<List<TimeSeriesOrdinal>> getCategoricalSumForWeeks(int numberOfWeeks, String category) async {
     List<TimeSeriesOrdinal> data = <TimeSeriesOrdinal>[];
 
     DateTime d = new DateTime.now();
     for (var i = 7 * numberOfWeeks; i >= 0; i--) {
       TimeSeriesOrdinal o = new TimeSeriesOrdinal(
-          d.subtract(const Duration(days: 1)),
-          await sumForCategory(
-              d.subtract(const Duration(days: 1)), d, category));
+          d.subtract(const Duration(days: 1)), await sumForCategory(d.subtract(const Duration(days: 1)), d, category));
       data.add(o);
       d = d.subtract(const Duration(days: 1));
     }

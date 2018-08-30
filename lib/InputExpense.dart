@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:currency_input_formatter/currency_input_formatter.dart';
-import 'package:geolocation/geolocation.dart' as geoloc;
+import 'package:geolocator/geolocator.dart';
+import 'package:tuple/tuple.dart';
 import 'ApplicationDatabase.dart';
 import 'Expense.dart';
 import 'Location.dart';
@@ -19,6 +19,10 @@ class InputExpense extends StatefulWidget {
 class InputExpenseState extends State<InputExpense> {
   final inputController = new TextEditingController();
   final titleInputController = new TextEditingController();
+  var loc = Geolocator().getCurrentPosition(LocationAccuracy.high);
+  var locResult;
+  var placemark;
+  var placemarkResult;
 
   List<Expense> _expenses;
 
@@ -34,31 +38,40 @@ class InputExpenseState extends State<InputExpense> {
     _category = null;
   }
 
-  Widget getCategoryBtn(String name, Color color) {
+  Widget getCategoryBtn(String name, Color color, Color color1) {
     return new FlatButton(
-        padding: EdgeInsets.zero,
+        padding: EdgeInsets.only(top: 1.0),
         onPressed: () {
           setState(() {
             _category = _category != name ? name : null;
           });
         },
-        child: new Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Icon(Icons.crop_landscape,
-                  color: _category == null || _category == name
-                      ? color
-                      : Colors.grey),
-              Text(
-                name,
-                textAlign: TextAlign.center,
-                style: new TextStyle(
-                  fontSize: 12.0,
-                  fontWeight: FontWeight.w100,
-                ),
-              )
-            ]));
+        child: new Container(
+            alignment: Alignment.center,
+            width: 69.0,
+            height: 69.0,
+            decoration: new BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 7.0,
+                      spreadRadius: 0.02,
+                      offset: Offset(0.8, 1.3))
+                ],
+                shape: BoxShape.circle,
+                gradient: (_category != null && _category != name)
+                    ? LinearGradient(
+                        colors: [color.withAlpha(150), color1.withAlpha(150)])
+                    : LinearGradient(colors: [color, color1])),
+            child: Text(
+              name.toUpperCase(),
+              textAlign: TextAlign.center,
+              style: new TextStyle(
+                  letterSpacing: 0.5,
+                  fontSize: 10.0,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFFFCFCF8)),
+            )));
   }
 
   _showErrorDialog(String text) async {
@@ -93,147 +106,251 @@ class InputExpenseState extends State<InputExpense> {
     BuildContext context,
   ) {
     return new Scaffold(
-        backgroundColor: Colors.white,
-        appBar: new AppBar(
-          elevation: 0.0,
-          title: new TextField(
-            controller: inputController,
-            autofocus: true,
-            keyboardType: TextInputType.number,
-            textAlign: TextAlign.right,
-            decoration: const InputDecoration(
-              contentPadding: const EdgeInsets.only(top: -2.0),
-              prefixText: '\€',
-              border: InputBorder.none,
-              prefixStyle: TextStyle(fontWeight: FontWeight.w200),
-            ),
-            inputFormatters: <TextInputFormatter>[
-              new CurrencyInputFormatter(
-                  allowSubdivisions: true, subdivisionMarker: "."),
-            ],
-            style: const TextStyle(fontSize: 28.0, color: Colors.black87),
+      backgroundColor: Colors.white,
+      appBar: new AppBar(
+        elevation: 0.0,
+        title: const Text("New Expense"),
+        actions: <Widget>[
+          new IconButton(
+            padding: EdgeInsets.zero,
+            icon: new Icon(Icons.today,
+                color: _otherDate == null ? Colors.grey : Colors.black),
+            onPressed: () {
+              DatePicker.showDatePicker(
+                context,
+                showTitleActions: true,
+                minYear: 1970,
+                maxYear: 2020,
+                initialYear: _otherDate == null
+                    ? new DateTime.now().year
+                    : _otherDate.year,
+                initialMonth: _otherDate == null
+                    ? new DateTime.now().month
+                    : _otherDate.month,
+                initialDate: _otherDate == null
+                    ? new DateTime.now().day
+                    : _otherDate.day,
+                onChanged: (year, month, date) {},
+                onConfirm: (year, month, date) {
+                  setState(() {
+                    _otherDate = new DateTime(year, month, date);
+                  });
+                },
+              );
+            },
           ),
-          actions: <Widget>[
-            new IconButton(
-              padding: EdgeInsets.zero,
-              icon: new Icon(Icons.today,
-                  color: _otherDate == null ? Colors.grey : Colors.black),
-              onPressed: () {
-                DatePicker.showDatePicker(
-                  context,
-                  showTitleActions: true,
-                  minYear: 1970,
-                  maxYear: 2020,
-                  initialYear: _otherDate == null
-                      ? new DateTime.now().year
-                      : _otherDate.year,
-                  initialMonth: _otherDate == null
-                      ? new DateTime.now().month
-                      : _otherDate.month,
-                  initialDate: _otherDate == null
-                      ? new DateTime.now().day
-                      : _otherDate.day,
-                  onChanged: (year, month, date) {},
-                  onConfirm: (year, month, date) {
-                    setState(() {
-                      _otherDate = new DateTime(year, month, date);
-                    });
-                  },
-                );
-              },
+          new IconButton(
+            icon: new Icon(
+              Icons.check,
+              color: _category == null ? Colors.grey : Colors.black,
             ),
-            new IconButton(
-              icon: new Icon(
-                Icons.check,
-                color: _category == null ? Colors.grey : Colors.black,
-              ),
-              onPressed: () async {
-                if (_category != null) {
-                  ApplicationDatabase db = new ApplicationDatabase();
+            onPressed: () async {
+              if (_category != null) {
+                ApplicationDatabase db = new ApplicationDatabase();
 
-                  final geoloc.GeolocationResult result =
-                      await geoloc.Geolocation.requestLocationPermission(
-                          const geoloc.LocationPermission(
-                              ios: geoloc.LocationPermissionIOS.whenInUse,
-                              android: geoloc.LocationPermissionAndroid.fine));
+                if (locResult != null) {
+                  print(
+                      "lat: ${locResult.latitude} long: ${locResult.longitude} acc: ${locResult.accuracy}");
+                  try {
+                    final expense = new Expense(
+                        -1,
+                        double
+                            .parse(inputController.text.replaceFirst(",", ".")),
+                        titleInputController.text.isEmpty
+                            ? _category
+                            : titleInputController.text.trim(),
+                        _otherDate == null ? new DateTime.now() : _otherDate,
+                        new Location(placemarkResult.name, locResult.latitude,
+                            locResult.longitude),
+                        _category);
 
-                  if (result.isSuccessful) {
-                    geoloc.Geolocation
-                        .currentLocation(accuracy: geoloc.LocationAccuracy.best)
-                        .listen((result) async {
-                      if (result.isSuccessful) {
-                        print(result.location);
-                        try {
-                          final expense = new Expense(
-                              -1,
-                              double.parse(
-                                  inputController.text.replaceFirst(",", ".")),
-                              titleInputController.text.isEmpty
-                                  ? _category
-                                  : titleInputController.text.trim(),
-                              _otherDate == null
-                                  ? new DateTime.now()
-                                  : _otherDate,
-                              new Location(
-                                  "Paul's bakery",
-                                  result.location.latitude,
-                                  result.location.longitude),
-                              _category);
+                    var achievements = await db.insertExpense(expense);
+                    setState(() {});
 
-                          await db.insertExpense(expense);
-                          setState(() {});
-
-                          Navigator.pop(context);
-                        } catch (e) {}
-                      } else {
-                        print("Failed");
-                        print(result.error);
-                        _showErrorDialog("Error: ${result.error.type}");
-                      }
-                    });
-                  } else {
-                    print("Failed");
-                    _showErrorDialog("Error: ${result.error.type}");
-                  }
+                    if (achievements.length > 0) {
+                      _renderAchievementBadge(achievements[0]);
+                    } else {
+                      Navigator.pop(context);
+                    }
+                  } catch (e) {}
+                } else {
+                  print("Failed");
                 }
-              },
+              } else {
+                print("Failed");
+                _showErrorDialog("Failed to fetch the current location.");
+              }
+            },
+          ),
+        ],
+      ),
+      body: new Column(children: <Widget>[
+        new Row(
+          children: <Widget>[
+            new Padding(
+              child: Text("\€",
+                  style: const TextStyle(
+                      color: Colors.blueGrey, fontWeight: FontWeight.w700)),
+              padding: EdgeInsets.only(left: 18.0, right: 5.0, top: 14.0),
             ),
+            new Container(
+              width: 100.0,
+              child: new TextField(
+                controller: inputController,
+                autofocus: true,
+                keyboardType: TextInputType.number,
+                textAlign: TextAlign.start,
+                decoration: const InputDecoration(
+                  contentPadding: const EdgeInsets.only(top: 0.0),
+                  border: const UnderlineInputBorder(
+                      borderSide: const BorderSide()),
+                ),
+                inputFormatters: <TextInputFormatter>[
+                  WhitelistingTextInputFormatter(new RegExp(r'[\d\.,]+')),
+                ],
+                style: const TextStyle(fontSize: 32.0, color: Colors.blueGrey),
+              ),
+            )
           ],
         ),
-        body: new SingleChildScrollView(
-            child: new Column(children: <Widget>[
-          new GridView.count(
-            shrinkWrap: true,
-            crossAxisCount: 5,
+        new Divider(),
+        new GestureDetector(
+          onTap: () {
+            setState(() {
+              loc = Geolocator().getCurrentPosition(LocationAccuracy.high);
+              locResult = null;
+              placemark = null;
+              placemarkResult = null;
+            });
+          },
+          child: new Row(
             children: <Widget>[
-              getCategoryBtn("Brood", Colors.brown),
-              getCategoryBtn("Alcohol", Colors.amber),
-              getCategoryBtn("Vlees en vis", Colors.blueAccent),
-              getCategoryBtn("Groenten en fruit", Colors.green),
-              getCategoryBtn("Kaas", Colors.yellow),
-              getCategoryBtn("Snacks", Colors.red),
-              getCategoryBtn("Frieten", Colors.orangeAccent),
-              getCategoryBtn("Frisdrank", Colors.deepOrange),
-              getCategoryBtn("Koffie", Colors.black87),
-              getCategoryBtn("Maaltijden", Colors.teal),
-              getCategoryBtn("Vertier", Colors.purple),
-              getCategoryBtn("Shopping", Colors.blueGrey),
-              getCategoryBtn("Gezondheid", Colors.greenAccent),
-              getCategoryBtn("ICT", Colors.indigo),
-              getCategoryBtn("Andere", Colors.pink),
+              new Padding(
+                padding: EdgeInsets.only(left: 18.0, right: 5.0),
+                child: new Icon(
+                  Icons.my_location,
+                  color: Colors.blueGrey,
+                ),
+              ),
+              _getPosition(),
             ],
           ),
-          new Card(
-            margin: EdgeInsets.all(12.0),
-            child: new ListTile(
-              title: new TextField(
-                controller: titleInputController,
-                decoration: null,
-                //style: const TextStyle(color: Colors.grey),
-              ),
-              leading: const Icon(Icons.label),
-            ),
+        ),
+        new Divider(),
+        new Container(
+          height: 100.0,
+          child: new ListView(
+            scrollDirection: Axis.horizontal,
+            children: <Widget>[
+              getCategoryBtn("Brood", Color(0xFF36D1DC), Color(0xFF5B86E5)),
+              getCategoryBtn("Alcohol", Color(0xFFFF416c), Color(0xFFFF4B2B)),
+              getCategoryBtn(
+                  "Vlees en vis", Color(0xFF4776E6), Color(0xFF8E54E9)),
+              getCategoryBtn(
+                  "Groenten en fruit", Color(0xFF92FE9D), Color(0xFF52c234)),
+              getCategoryBtn("Kaas", Color(0xFFAA076B), Color(0xFF61045F)),
+              getCategoryBtn("Snacks", Color(0xFFFF416c), Color(0xFFFF4B2B)),
+              getCategoryBtn("Frieten", Color(0xFFFF416c), Color(0xFFFF4B2B)),
+              getCategoryBtn("Frisdrank", Color(0xFFFF416c), Color(0xFFFF4B2B)),
+              getCategoryBtn("Koffie", Color(0xFFFF416c), Color(0xFFFF4B2B)),
+              getCategoryBtn(
+                  "Maal-\ntijden", Color(0xFFFF416c), Color(0xFFFF4B2B)),
+              getCategoryBtn("Vertier", Color(0xFFFF416c), Color(0xFFFF4B2B)),
+              getCategoryBtn("Shopping", Color(0xFFFF416c), Color(0xFFFF4B2B)),
+              getCategoryBtn(
+                  "Gezondheid", Color(0xFFFF416c), Color(0xFFFF4B2B)),
+              getCategoryBtn("ICT", Color(0xFFFF416c), Color(0xFFFF4B2B)),
+              getCategoryBtn("Andere", Color(0xFFFF416c), Color(0xFFFF4B2B)),
+            ],
           ),
-        ])));
+        ),
+        new Divider(),
+      ]),
+    );
+  }
+
+  void _renderAchievementBadge(Tuple3 achievement) {
+    Navigator.of(context).push(new MaterialPageRoute(
+        builder: (_) => new Scaffold(
+              body: new SafeArea(
+                child: new Column(
+                  children: <Widget>[
+                    new Text(achievement.toString()),
+                    new FlatButton(
+                      child: const Text("Awesome"),
+                      onPressed: () {
+                        Navigator.of(context)..pop()..pop();
+                      },
+                    )
+                  ],
+                ),
+              ),
+            )));
+  }
+
+  Widget _getPosition() {
+    return new FutureBuilder(
+        future: loc,
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.none:
+            //return new Text('Press button to start');
+            case ConnectionState.waiting:
+              return Text("Finding location...",
+                  style: const TextStyle(
+                      color: Colors.blueGrey, fontWeight: FontWeight.w700));
+            default:
+              if (snapshot.hasError)
+                return new Text('Error: ${snapshot.error}');
+              else {
+                Position p = snapshot.data;
+                locResult = p;
+                placemark = Geolocator()
+                    .placemarkFromCoordinates(p.latitude, p.longitude);
+
+                return _getLocation();
+              }
+          }
+        });
+  }
+
+  Widget _getLocation() {
+    return new FutureBuilder(
+        future: placemark,
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.none:
+            //return new Text('Press button to start');
+            case ConnectionState.waiting:
+              return Text("Finding location...",
+                  style: const TextStyle(
+                      color: Colors.blueGrey, fontWeight: FontWeight.w700));
+            default:
+              if (snapshot.hasError)
+                return new Text('Error: ${snapshot.error}');
+              else {
+                List<Placemark> p = snapshot.data;
+                placemarkResult = p[0];
+                return new Text("${p[0].name}",
+                    style: const TextStyle(
+                        color: Colors.blueGrey, fontWeight: FontWeight.w700));
+              }
+          }
+        });
+  }
+}
+
+class CurrencyInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    var pattern = new RegExp("r[0-9]*([,.][0-9]*)?");
+
+    if (pattern.hasMatch(newValue.text)) {
+      return newValue;
+    } else {
+      return newValue.copyWith(
+          text: pattern.firstMatch(newValue.text).group(0));
+    }
   }
 }

@@ -62,7 +62,7 @@ class PatternForwardHatchBarChart extends StatelessWidget {
 /// @param   {number}  h       The hue
 /// @param   {number}  s       The saturation
 /// @param   {number}  l       The lightness
-/// @return  {Array}           The RGB representation
+/// @return  {charts.Color}    The equivalent color object
 ///
 hslToRgb(h, s, l) {
   var r, g, b;
