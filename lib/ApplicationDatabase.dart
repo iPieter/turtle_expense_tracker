@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rule_engine/rule_engine.dart';
 import 'package:sqflite/sqflite.dart' as db_utils;
@@ -40,7 +39,7 @@ class ApplicationDatabase {
       //print("Deleting old db");
       //await db_utils.deleteDatabase(path);
 
-      _db = await db_utils.openDatabase(path, version: 1,
+      _db = await db_utils.openDatabase(path, version: 2,
           onCreate: (db_utils.Database db, int version) async {
         _log.info("Creating new db");
 
@@ -50,6 +49,22 @@ class ApplicationDatabase {
             "CREATE TABLE Location(id INTEGER PRIMARY KEY, name TEXT, lat REAL, lng REAL)");
       }, onOpen: (db_utils.Database db) {
         _log.finest("DB opened");
+      }, onUpgrade:
+              (db_utils.Database db, int oldVersion, int newVersion) async {
+        //loop through all versions one by one
+        for (int i = oldVersion; i < newVersion; i++) {
+          _log.info(
+              "Upgrading database from $i to ${i+1}, target version is $newVersion.");
+          switch (i) {
+            case 1:
+              break;
+            case 2:
+              await db.execute(
+                  "CREATE TABLE Achievement(id INTEGER PRIMARY KEY, title TEXT, descr TEXT, badge TEXT)");
+              break;
+            default:
+          }
+        }
       });
     }
     mutex.release();
@@ -106,8 +121,8 @@ class ApplicationDatabase {
       localExpenses.add(e);
       _log.finest("Created Expense record: $id");
     });
-
     mutex.release();
+
     _ruleEngine.insertFact(e);
 
     return achievements;
@@ -246,7 +261,24 @@ class ApplicationDatabase {
         .toList();
   }
 
-  void _insertAchievement(Tuple3 achievement) {}
+  void _insertAchievement(Tuple3 achievement) async {
+    var db = await _getDB();
+
+    _log.finest("trying to insert $achievement");
+    await db.transaction((txn) async {
+      int id = await txn.rawInsert(
+          "INSERT INTO Achievement(title,descr,badge) VALUES(?,?,?)",
+          [achievement.item2, achievement.item3, achievement.item1]);
+      _log.finest("Created Achievement record: $id");
+    });
+  }
+
+  getAchievements() async {
+    var db = await _getDB();
+    List<Map> list = await db.rawQuery("SELECT * FROM Achievement");
+
+    return list.map((i) => new Tuple3(i["badge"], i["title"], i["descr"]));
+  }
 
   ApplicationDatabase._internal() {
     _db = null;
@@ -257,10 +289,11 @@ class ApplicationDatabase {
 
     rootBundle.loadString("assets/achievements.daru").then((s) {
       _ruleEngine = new RuleEngine(s);
-      _ruleEngine.registerListener((type, attributes) {
+      _ruleEngine.registerListener((type, attributes) async {
         print("insert $type with arguments $attributes");
-        achievements
-            .add(new Tuple3(attributes[0], attributes[1], attributes[2]));
+        var a = new Tuple3(attributes[0], attributes[1], attributes[2]);
+        achievements.add(a);
+        _insertAchievement(a);
       });
     });
   }

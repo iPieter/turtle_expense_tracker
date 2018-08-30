@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -19,7 +20,10 @@ class AchievementsList extends StatelessWidget {
             new Text(
               title.toUpperCase(),
               style: const TextStyle(
-                  color: Colors.blueGrey, letterSpacing: 0.4, fontSize: 18.0, fontWeight: FontWeight.w100),
+                  color: Colors.blueGrey,
+                  letterSpacing: 0.4,
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.w100),
             ),
             new Text(
               desc,
@@ -34,12 +38,16 @@ class AchievementsList extends StatelessWidget {
         ));
   }
 
-  List<Widget> _getAchievements() {
+  Future<List<Widget>> _getAchievements() async {
     ApplicationDatabase db = new ApplicationDatabase();
 
     var widgets = List<Widget>();
 
-    for (var t in db.achievements) {
+    var achievements = await db.getAchievements();
+
+    print(achievements);
+
+    for (var t in achievements) {
       widgets.add(buildBadge(t.item1, t.item2, t.item3));
     }
 
@@ -61,10 +69,23 @@ class AchievementsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.count(
-      childAspectRatio: 0.8,
-      crossAxisCount: 2,
-      children: _getAchievements(),
-    );
+    return FutureBuilder(
+        future: _getAchievements(),
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.none:
+            case ConnectionState.waiting:
+              return new Text('Awaiting result...');
+            default:
+              if (snapshot.hasError || snapshot.data.length == 0)
+                return new Text('Error: ${snapshot.error}');
+              else
+                return GridView.count(
+                  childAspectRatio: 0.8,
+                  crossAxisCount: 2,
+                  children: snapshot.data,
+                );
+          }
+        });
   }
 }
