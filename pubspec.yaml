@@ -16,7 +16,7 @@ dependencies:
   logging: "^0.11.3+1"
   geolocator: "^1.6.3"
   flutter_slidable: "^0.4.3"
-  rule_engine: ^0.0.1
+  rule_engine: ^0.0.3
   share:
     git:
       url: https://github.com/d-silveira/flutter-share.git

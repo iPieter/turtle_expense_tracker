@@ -48,7 +48,7 @@ class AchievementsList extends StatelessWidget {
     print(achievements);
 
     for (var t in achievements) {
-      widgets.add(buildBadge(t.item1, t.item2, t.item3));
+      widgets.add(buildBadge(t.iconIdentifier, t.title, t.desc));
     }
 
     return widgets;

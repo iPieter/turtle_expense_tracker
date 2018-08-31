@@ -4,10 +4,11 @@ import 'package:sqflite/sqflite.dart' as db_utils;
 import 'dart:io';
 import 'dart:async';
 import 'package:path_provider/path_provider.dart';
+import 'package:tuple/tuple.dart';
+import 'package:turtle/Achievement.dart';
 import 'Expense.dart';
 import 'Location.dart';
 import 'package:mutex/mutex.dart';
-import 'package:tuple/tuple.dart';
 import 'package:logging/logging.dart';
 
 class ApplicationDatabase {
@@ -23,7 +24,6 @@ class ApplicationDatabase {
   DateTime endDate;
 
   //achievement shit
-  List<Tuple3> achievements = new List();
   RuleEngine _ruleEngine;
 
   factory ApplicationDatabase() {
@@ -87,7 +87,7 @@ class ApplicationDatabase {
     localExpenses.removeWhere((exp) => exp.id == e.id);
   }
 
-  Future<List<Tuple3>> insertExpense(Expense e) async {
+  Future<List<Achievement>> insertExpense(Expense e) async {
     _log.finest("Inserting expense");
     var db = await _getDB();
     await mutex.acquire();
@@ -124,8 +124,6 @@ class ApplicationDatabase {
     mutex.release();
 
     _ruleEngine.insertFact(e);
-
-    return achievements;
   }
 
   getExpensesInPeriod(DateTime start, DateTime end) async {
@@ -261,23 +259,28 @@ class ApplicationDatabase {
         .toList();
   }
 
-  void _insertAchievement(Tuple3 achievement) async {
+  void _insertAchievement(Achievement achievement) async {
     var db = await _getDB();
 
     _log.finest("trying to insert $achievement");
     await db.transaction((txn) async {
       int id = await txn.rawInsert(
           "INSERT INTO Achievement(title,descr,badge) VALUES(?,?,?)",
-          [achievement.item2, achievement.item3, achievement.item1]);
+          [achievement.title, achievement.desc, achievement.iconIdentifier]);
       _log.finest("Created Achievement record: $id");
     });
+    _ruleEngine.insertFact(achievement);
   }
 
-  getAchievements() async {
+  Future<List<Achievement>> getAchievements() async {
     var db = await _getDB();
     List<Map> list = await db.rawQuery("SELECT * FROM Achievement");
 
-    return list.map((i) => new Tuple3(i["badge"], i["title"], i["descr"]));
+    if (list.length == 0) return new List();
+
+    return list
+        .map((i) => new Achievement(i["badge"], i["title"], i["descr"]))
+        .toList();
   }
 
   ApplicationDatabase._internal() {
@@ -289,10 +292,13 @@ class ApplicationDatabase {
 
     rootBundle.loadString("assets/achievements.daru").then((s) {
       _ruleEngine = new RuleEngine(s);
+      getAchievements().then((l) {
+        l.forEach((f) => _ruleEngine.insertFact(f));
+      });
+
       _ruleEngine.registerListener((type, attributes) async {
         print("insert $type with arguments $attributes");
-        var a = new Tuple3(attributes[0], attributes[1], attributes[2]);
-        achievements.add(a);
+        var a = new Achievement(attributes[0], attributes[1], attributes[2]);
         _insertAchievement(a);
       });
     });

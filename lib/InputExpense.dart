@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:tuple/tuple.dart';
+import 'package:turtle/Achievement.dart';
 import 'ApplicationDatabase.dart';
 import 'Expense.dart';
 import 'Location.dart';
@@ -269,7 +270,7 @@ class InputExpenseState extends State<InputExpense> {
     );
   }
 
-  void _renderAchievementBadge(Tuple3 achievement) {
+  void _renderAchievementBadge(Achievement achievement) {
     Navigator.of(context).push(new MaterialPageRoute(
         builder: (_) => new Scaffold(
               body: new SafeArea(

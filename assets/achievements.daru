@@ -1,6 +1,7 @@
 rule "expense"
   when
-    Expense(amount > 10, $amount: amount)
+    not Achievement( title ==  "Bob saved some money" )
+    Expense( amount > 10, $amount: amount )
   then
     publish Achievement( "01", "Bob saved some money", $amount )
 end
@@ -8,6 +9,7 @@ end
 rule "cheese"
   when
     Expense(amount > 300, category == "Kaas" )
+    not Achievement( title == "A lot of cheese" )
   then
     publish Achievement( "05", "A lot of cheese", "Spent more than € 300 on cheese" )
 end
